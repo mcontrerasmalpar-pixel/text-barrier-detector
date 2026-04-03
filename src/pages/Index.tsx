@@ -122,14 +122,22 @@ const Index = () => {
 
             <AnnotatedText sentences={result.sentences} lang={lang} />
 
-            <div className="flex justify-end">
-              <button
-                onClick={() => generatePDF(result, enhancement)}
-                className="px-4 py-2 text-xs border border-border text-muted-foreground hover:text-foreground hover:border-[#d1d1ce] transition-colors rounded"
-              >
-                ↓ Download Report
-              </button>
-            </div>
+            {/* Suggestions */}
+            {result.suggestions.length > 0 && (
+              <div style={{ background: '#ffffff', border: '1px solid #e8e8e5', borderRadius: '10px', padding: '16px 20px' }}>
+                <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#999999', marginBottom: '12px' }}>
+                  {t.suggestions}
+                </div>
+                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {result.suggestions.map((s, i) => (
+                    <li key={i} style={{ display: 'flex', gap: '10px', fontSize: '14px', color: '#444444', lineHeight: 1.6 }}>
+                      <span style={{ color: '#0891b2', fontWeight: 600, flexShrink: 0 }}>›</span>
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <SuggestionCard
               enhancement={enhancement}
@@ -137,6 +145,15 @@ const Index = () => {
               onEnhance={handleEnhance}
               lang={lang}
             />
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => generatePDF(result, enhancement)}
+                style={{ fontSize: '12px', color: '#aaaaaa', border: '1px solid #e8e8e5', borderRadius: '6px', padding: '6px 14px', background: 'transparent', cursor: 'pointer' }}
+              >
+                ↓ Download Report
+              </button>
+            </div>
           </>
         )}
 

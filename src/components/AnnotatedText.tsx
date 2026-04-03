@@ -40,39 +40,29 @@ function SentenceRow({ sentence, lang }: { sentence: SentenceAnalysis; lang: Lan
   const t = translations[lang];
   const severity = getSeverity(sentence);
   const tags = getTags(sentence, t);
-  const borderColor = BORDER_COLOR[severity];
 
   return (
-    <div
-      className="highlight-animate"
-      style={{
-        background: '#ffffff',
-        border: '1px solid #e8e8e5',
-        borderRadius: '10px',
-        borderLeft: `4px solid ${borderColor}`,
-        padding: '14px 16px',
-        animationDelay: `${sentence.index * 0.04}s`,
-      }}
-    >
+    <div style={{
+      background: '#ffffff',
+      border: '1px solid #e8e8e5',
+      borderRadius: '10px',
+      borderLeft: `4px solid ${BORDER_COLOR[severity]}`,
+      padding: '14px 16px',
+    }}>
       <p style={{ fontSize: '14px', lineHeight: 1.7, color: '#111111', margin: 0 }}>
         {sentence.text}
       </p>
-
       {tags.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' }}>
           {tags.map((tag, i) => (
-            <span
-              key={i}
-              style={{
-                display: 'inline-block',
-                padding: '2px 10px',
-                borderRadius: '999px',
-                fontSize: '11px',
-                fontWeight: 500,
-                background: PILL[tag.severity].bg,
-                color: PILL[tag.severity].color,
-              }}
-            >
+            <span key={i} style={{
+              padding: '2px 10px',
+              borderRadius: '999px',
+              fontSize: '11px',
+              fontWeight: 500,
+              background: PILL[tag.severity].bg,
+              color: PILL[tag.severity].color,
+            }}>
               {tag.label}
             </span>
           ))}
@@ -103,8 +93,7 @@ const AnnotatedText = ({ sentences, lang }: AnnotatedTextProps) => {
         ))}
       </div>
 
-      {/* Legend */}
-      <div style={{ display: 'flex', gap: '20px', marginTop: '14px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '12px' }}>
         {LEGEND.map(({ severity, label }) => (
           <span key={severity} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#aaaaaa' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: BORDER_COLOR[severity], flexShrink: 0 }} />
