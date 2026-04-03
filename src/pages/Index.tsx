@@ -22,12 +22,16 @@ const Index = () => {
     if (!text.trim()) return;
     setIsAnalyzing(true);
     setEnhancement(null);
-    // Small timeout to let UI update
     setTimeout(() => {
-      const r = analyzeText(text);
-      setResult(r);
-      setIsAnalyzing(false);
-    }, 100);
+      try {
+        const r = analyzeText(text);
+        setResult(r);
+      } catch (err) {
+        console.error('Analysis failed:', err);
+      } finally {
+        setIsAnalyzing(false);
+      }
+    }, 50);
   }, [text]);
 
   const handleEnhance = useCallback(async () => {
@@ -44,10 +48,15 @@ const Index = () => {
   }, [result, text]);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header — full width, white, 1px bottom border */}
-      <header className="bg-white border-b border-[#e8e8e5] sticky top-0 z-10">
-        <div className="max-w-[720px] mx-auto px-4 h-12 flex items-center justify-between">
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: '#f9f9f8',
+      backgroundImage: 'radial-gradient(circle, #d1d1ce 1px, transparent 1px)',
+      backgroundSize: '24px 24px',
+    }}>
+      {/* Header — full width, white, 1px bottom border + subtle cyan accent line */}
+      <header className="bg-white sticky top-0 z-10" style={{ borderBottom: '1px solid #e8e8e5', boxShadow: 'inset 0 -2px 0 rgba(8,145,178,0.15)' }}>
+        <div className="max-w-[680px] mx-auto px-4 h-12 flex items-center justify-between">
           {/* Left: icon + title + beta badge */}
           <div className="flex items-center gap-2.5">
             <span className="w-4 h-4 bg-primary rounded-sm shrink-0" />
@@ -85,8 +94,8 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Centered content — max-width 720px */}
-      <div className="max-w-[720px] mx-auto px-4 py-6 space-y-6">
+      {/* Centered content — max-width 680px, anchored with top padding */}
+      <div className="max-w-[680px] mx-auto px-4 space-y-6" style={{ paddingTop: '48px', paddingBottom: '48px' }}>
         {/* Hero */}
         {!result && (
           <div style={{ marginBottom: '32px', paddingTop: '24px' }}>

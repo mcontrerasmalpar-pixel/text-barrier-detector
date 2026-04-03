@@ -30,11 +30,13 @@ const TextInput = ({ value, onChange, onAnalyze, isAnalyzing, lang }: TextInputP
         placeholder="Paste your text here... Try academic papers, legal docs, emails."
         style={{
           width: '100%',
+          boxSizing: 'border-box',
           height: '140px',
           padding: '18px 20px',
           border: 'none',
           outline: 'none',
           resize: 'vertical',
+          display: 'block',
           fontFamily: 'inherit',
           fontSize: '14px',
           lineHeight: '1.7',
@@ -73,7 +75,7 @@ const TextInput = ({ value, onChange, onAnalyze, isAnalyzing, lang }: TextInputP
             borderRadius: '8px',
             fontSize: '13px',
             fontWeight: 600,
-            cursor: 'pointer',
+            cursor: isAnalyzing || !value.trim() ? 'not-allowed' : 'pointer',
             opacity: isAnalyzing || !value.trim() ? 0.45 : 1,
             transition: 'opacity 0.15s',
           }}
