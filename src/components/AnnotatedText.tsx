@@ -6,40 +6,33 @@ interface AnnotatedTextProps {
   lang: Lang;
 }
 
-// Red = long OR passive voice | Amber = complex words only | Cyan = clean
-type Severity = 'red' | 'amber' | 'cyan';
+type Severity = 'red' | 'amber' | 'blue';
 
 function getSeverity(s: SentenceAnalysis): Severity {
   if (s.isLong || s.hasPassiveVoice) return 'red';
   if (s.complexWords.length > 0) return 'amber';
-  return 'cyan';
+  return 'blue';
 }
 
-const BORDER: Record<Severity, string> = {
-  red:   'border-l-error',
-  amber: 'border-l-warning',
-  cyan:  'border-l-primary',
+const BORDER_COLOR: Record<Severity, string> = {
+  red:   '#dc2626',
+  amber: '#d97706',
+  blue:  '#0891b2',
 };
 
-const BG: Record<Severity, string> = {
-  red:   'bg-error/5',
-  amber: 'bg-warning/5',
-  cyan:  'bg-primary/5',
+const PILL: Record<Severity, { bg: string; color: string }> = {
+  red:   { bg: 'rgba(220,38,38,0.10)',  color: '#dc2626' },
+  amber: { bg: 'rgba(217,119,6,0.10)',  color: '#d97706' },
+  blue:  { bg: 'rgba(8,145,178,0.10)',  color: '#0891b2' },
 };
 
-const PILL_BASE = 'px-2 py-0.5 text-[10px] font-sans rounded-sm';
+interface Tag { label: string; severity: Severity }
 
-const PILL: Record<Severity, string> = {
-  red:   `${PILL_BASE} bg-error/10 text-error border border-error/20`,
-  amber: `${PILL_BASE} bg-warning/10 text-warning border border-warning/20`,
-  cyan:  `${PILL_BASE} bg-primary/10 text-primary border border-primary/20`,
-};
-
-function getTags(s: SentenceAnalysis, t: (typeof translations)['en']): string[] {
-  const tags: string[] = [];
-  if (s.isLong) tags.push(`${s.wordCount} ${t.words}`);
-  if (s.hasPassiveVoice) tags.push(t.passiveVoiceLabel);
-  for (const w of s.complexWords) tags.push(w.toLowerCase());
+function getTags(s: SentenceAnalysis, t: (typeof translations)['en']): Tag[] {
+  const tags: Tag[] = [];
+  if (s.isLong)          tags.push({ label: `${t.longSentence} · ${s.wordCount}w`, severity: 'red' });
+  if (s.hasPassiveVoice) tags.push({ label: t.passiveVoiceLabel, severity: 'red' });
+  for (const w of s.complexWords) tags.push({ label: w.toLowerCase(), severity: 'amber' });
   return tags;
 }
 
@@ -47,17 +40,41 @@ function SentenceRow({ sentence, lang }: { sentence: SentenceAnalysis; lang: Lan
   const t = translations[lang];
   const severity = getSeverity(sentence);
   const tags = getTags(sentence, t);
+  const borderColor = BORDER_COLOR[severity];
 
   return (
     <div
-      className={`highlight-animate border-l-4 px-4 py-3 ${BORDER[severity]} ${BG[severity]}`}
-      style={{ animationDelay: `${sentence.index * 0.04}s` }}
+      className="highlight-animate"
+      style={{
+        background: '#ffffff',
+        border: '1px solid #e8e8e5',
+        borderRadius: '10px',
+        borderLeft: `4px solid ${borderColor}`,
+        padding: '14px 16px',
+        animationDelay: `${sentence.index * 0.04}s`,
+      }}
     >
-      <p className="font-mono text-sm leading-relaxed text-foreground">{sentence.text}</p>
+      <p style={{ fontSize: '14px', lineHeight: 1.7, color: '#111111', margin: 0 }}>
+        {sentence.text}
+      </p>
+
       {tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mt-2">
-          {tags.map((tag) => (
-            <span key={tag} className={PILL[severity]}>{tag}</span>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' }}>
+          {tags.map((tag, i) => (
+            <span
+              key={i}
+              style={{
+                display: 'inline-block',
+                padding: '2px 10px',
+                borderRadius: '999px',
+                fontSize: '11px',
+                fontWeight: 500,
+                background: PILL[tag.severity].bg,
+                color: PILL[tag.severity].color,
+              }}
+            >
+              {tag.label}
+            </span>
           ))}
         </div>
       )}
@@ -65,38 +82,32 @@ function SentenceRow({ sentence, lang }: { sentence: SentenceAnalysis; lang: Lan
   );
 }
 
-const LEGEND = [
-  { severity: 'red'  as Severity, label: (t: (typeof translations)['en']) => `${t.legendLong} / ${t.legendPassive}` },
-  { severity: 'amber' as Severity, label: (t: (typeof translations)['en']) => t.legendComplex },
-  { severity: 'cyan'  as Severity, label: (t: (typeof translations)['en']) => t.legendClean },
+const LEGEND: { severity: Severity; label: (t: (typeof translations)['en']) => string }[] = [
+  { severity: 'red',   label: (t) => `${t.legendLong} / ${t.legendPassive}` },
+  { severity: 'amber', label: (t) => t.legendComplex },
+  { severity: 'blue',  label: (t) => t.legendClean },
 ];
-
-const DOT_COLOR: Record<Severity, string> = {
-  red:   'bg-error',
-  amber: 'bg-warning',
-  cyan:  'bg-primary',
-};
 
 const AnnotatedText = ({ sentences, lang }: AnnotatedTextProps) => {
   const t = translations[lang];
 
   return (
     <div>
-      <h2 className="text-sm font-semibold text-primary tracking-widest uppercase font-sans mb-3">
+      <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#999999', marginBottom: '10px' }}>
         {t.annotatedText}
-      </h2>
+      </div>
 
-      <div className="bg-card border border-border space-y-px">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {sentences.map((s) => (
           <SentenceRow key={s.index} sentence={s} lang={lang} />
         ))}
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-4 mt-3 px-1">
+      <div style={{ display: 'flex', gap: '20px', marginTop: '14px' }}>
         {LEGEND.map(({ severity, label }) => (
-          <span key={severity} className="flex items-center gap-1.5 text-xs text-muted-foreground font-sans">
-            <span className={`w-2 h-2 rounded-full shrink-0 ${DOT_COLOR[severity]}`} />
+          <span key={severity} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#aaaaaa' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: BORDER_COLOR[severity], flexShrink: 0 }} />
             {label(t)}
           </span>
         ))}

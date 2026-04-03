@@ -45,27 +45,38 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border px-4 py-3 flex items-center justify-between">
-        <div>
-          <h1 className="text-sm font-mono font-bold text-primary tracking-[0.3em]">{t.title}</h1>
-          <p className="text-xs text-muted-foreground font-sans">{t.subtitle}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {/* Language toggle */}
-          <div className="flex border border-border">
+      {/* Header — full width, white, 1px bottom border */}
+      <header className="bg-white border-b border-[#e8e8e5] sticky top-0 z-10">
+        <div className="max-w-[720px] mx-auto px-4 h-12 flex items-center justify-between">
+          {/* Left: icon + title + beta badge */}
+          <div className="flex items-center gap-2.5">
+            <span className="w-4 h-4 bg-primary rounded-sm shrink-0" />
+            <span style={{ fontSize: '15px', fontWeight: 600, color: '#111111', lineHeight: 1 }}>
+              Text Barrier Detector
+            </span>
+            <span className="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-primary/10 text-primary leading-none">
+              Beta
+            </span>
+          </div>
+
+          {/* Right: EN/ES toggle */}
+          <div className="flex items-center border border-[#e8e8e5] rounded overflow-hidden text-xs font-sans">
             <button
               onClick={() => setLang('en')}
-              className={`px-3 py-1 text-xs font-mono transition-colors ${
-                lang === 'en' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+              className={`px-3 py-1.5 transition-colors ${
+                lang === 'en'
+                  ? 'bg-primary text-white'
+                  : 'text-[#666666] hover:text-[#111111] hover:bg-[#f9f9f8]'
               }`}
             >
               EN
             </button>
             <button
               onClick={() => setLang('es')}
-              className={`px-3 py-1 text-xs font-mono transition-colors ${
-                lang === 'es' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+              className={`px-3 py-1.5 border-l border-[#e8e8e5] transition-colors ${
+                lang === 'es'
+                  ? 'bg-primary text-white'
+                  : 'text-[#666666] hover:text-[#111111] hover:bg-[#f9f9f8]'
               }`}
             >
               ES
@@ -74,73 +85,55 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Hero */}
-      {!result && (
-        <div className="px-4 pt-12 pb-8 text-center max-w-2xl mx-auto">
-          <h2 className="text-3xl font-bold text-foreground leading-tight mb-3">
-            Decode your text.{' '}
-            <span className="text-primary">Make it accessible.</span>
-          </h2>
-          <p className="text-sm text-muted-foreground mb-6">
-            Detect readability barriers instantly — long sentences, passive voice, complex words.
-          </p>
-          <div className="flex flex-wrap justify-center gap-2">
-            {['Flesch score', 'Sentence heatmap', 'AI rewrites', 'No login needed'].map((pill) => (
-              <span
-                key={pill}
-                className="px-3 py-1 text-xs border border-primary/30 text-primary bg-primary/5"
-              >
-                {pill}
-              </span>
-            ))}
+      {/* Centered content — max-width 720px */}
+      <div className="max-w-[720px] mx-auto px-4 py-6 space-y-6">
+        {/* Hero */}
+        {!result && (
+          <div style={{ marginBottom: '32px', paddingTop: '24px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 600, color: '#111111', lineHeight: 1.3, marginBottom: '10px' }}>
+              Make your writing more accessible
+            </h2>
+            <p style={{ fontSize: '14px', color: '#666666', lineHeight: 1.7 }}>
+              Paste any text to detect readability issues and get AI-powered suggestions to fix them.
+            </p>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="flex flex-col lg:flex-row">
-        {/* Left panel */}
-        <div className="flex-1 p-4 space-y-4 min-w-0">
-          <TextInput
-            value={text}
-            onChange={setText}
-            onAnalyze={handleAnalyze}
-            isAnalyzing={isAnalyzing}
-            lang={lang}
-          />
+        <TextInput
+          value={text}
+          onChange={setText}
+          onAnalyze={handleAnalyze}
+          isAnalyzing={isAnalyzing}
+          lang={lang}
+        />
 
-          {result && (
-            <>
-              <AnnotatedText sentences={result.sentences} lang={lang} />
-
-              <div className="flex justify-end">
-                <button
-                  onClick={() => generatePDF(result, enhancement)}
-                  className="px-4 py-2 text-xs font-mono border border-border text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
-                >
-                  ↓ Download Report
-                </button>
-              </div>
-
-              <SuggestionCard
-                enhancement={enhancement}
-                isEnhancing={isEnhancing}
-                onEnhance={handleEnhance}
-                lang={lang}
-              />
-            </>
-          )}
-
-          {!result && (
-            <div className="text-center py-16 text-muted-foreground text-sm font-sans">
-              {t.noResults}
-            </div>
-          )}
-        </div>
-
-        {/* Right sidebar */}
         {result && (
-          <div className="w-full lg:w-80 xl:w-96 border-t lg:border-t-0 lg:border-l border-border p-4 shrink-0">
+          <>
             <MetricsSidebar result={result} lang={lang} />
+
+            <AnnotatedText sentences={result.sentences} lang={lang} />
+
+            <div className="flex justify-end">
+              <button
+                onClick={() => generatePDF(result, enhancement)}
+                className="px-4 py-2 text-xs border border-border text-muted-foreground hover:text-foreground hover:border-[#d1d1ce] transition-colors rounded"
+              >
+                ↓ Download Report
+              </button>
+            </div>
+
+            <SuggestionCard
+              enhancement={enhancement}
+              isEnhancing={isEnhancing}
+              onEnhance={handleEnhance}
+              lang={lang}
+            />
+          </>
+        )}
+
+        {!result && (
+          <div className="text-center py-12 text-muted-foreground text-sm">
+            {t.noResults}
           </div>
         )}
       </div>

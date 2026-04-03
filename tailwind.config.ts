@@ -15,7 +15,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["'Inter'", "sans-serif"],
-        mono: ["'JetBrains Mono'", "monospace"],
+        mono: ["ui-monospace", "'Cascadia Code'", "'Source Code Pro'", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -67,10 +67,10 @@ export default {
         "gauge-green": "hsl(var(--gauge-green))",
         "gauge-amber": "hsl(var(--gauge-amber))",
         "gauge-red": "hsl(var(--gauge-red))",
-        warning: "#f59e0b",
-        error: "#f87171",
-        success: "#00d4c8",
-        "text-subtle": "#2a5050",
+        warning: "#d97706",
+        error: "#dc2626",
+        success: "#0891b2",
+        "text-subtle": "#666666",
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -12,84 +12,112 @@ const SuggestionCard = ({ enhancement, isEnhancing, onEnhance, lang }: Suggestio
   const t = translations[lang];
 
   return (
-    <div className="border border-primary/30 bg-card">
+    <div style={{ background: '#ffffff', border: '1px solid #e8e8e5', borderRadius: '12px', overflow: 'hidden' }}>
+
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-primary/20">
-        <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
-        <span className="text-xs font-sans font-semibold tracking-widest uppercase text-primary">
-          AI Enhancement
-        </span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px 20px', borderBottom: '1px solid #e8e8e5' }}>
+        <div style={{
+          width: '32px', height: '32px', borderRadius: '8px',
+          background: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+        }}>
+          <span style={{ fontSize: '16px', color: '#0891b2', lineHeight: 1 }}>✦</span>
+        </div>
+        <div>
+          <div style={{ fontSize: '14px', fontWeight: 600, color: '#111111', lineHeight: 1.2 }}>
+            AI Enhancement
+          </div>
+          <div style={{ fontSize: '12px', color: '#aaaaaa', marginTop: '2px' }}>
+            Plain-language rewrites powered by Claude
+          </div>
+        </div>
       </div>
 
-      <div className="px-4 py-4 space-y-4">
-        {/* Description */}
-        <p className="text-xs text-muted-foreground font-sans leading-relaxed">
-          Claude rewrites your hardest sentences in plain language. No login needed.
-        </p>
+      {/* Body */}
+      {enhancement && (
+        <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
-        {/* Rewrites */}
-        {enhancement && enhancement.rewrites.length > 0 && (
-          <div className="space-y-4">
-            {enhancement.rewrites.map((rw, i) => (
-              <div key={i} className="space-y-1.5">
-                <p className="text-xs font-mono text-muted-foreground line-through leading-relaxed">
-                  {rw.original}
-                </p>
-                <p className="text-sm font-sans text-foreground leading-relaxed">
-                  {rw.rewrite}
-                </p>
-                <p className="text-[11px] font-sans text-muted-foreground/70 italic">
-                  {rw.reason}
-                </p>
-                {i < enhancement.rewrites.length - 1 && (
-                  <div className="border-t border-border pt-2" />
-                )}
+          {/* Rewrites */}
+          {enhancement.rewrites.map((rw, i) => (
+            <div key={i} style={{
+              background: '#f9f9f8', borderRadius: '8px', padding: '14px 16px',
+            }}>
+              <p style={{ fontSize: '13px', color: '#aaaaaa', textDecoration: 'line-through', lineHeight: 1.6, margin: '0 0 8px' }}>
+                {rw.original}
+              </p>
+              <p style={{ fontSize: '14px', color: '#111111', lineHeight: 1.7, margin: '0 0 8px' }}>
+                {rw.rewrite}
+              </p>
+              <p style={{ fontSize: '11px', color: '#0891b2', lineHeight: 1.5, margin: 0 }}>
+                {rw.reason}
+              </p>
+            </div>
+          ))}
+
+          {/* Jargon validation */}
+          {enhancement.jargonValidation.length > 0 && (
+            <div style={{ background: '#f9f9f8', borderRadius: '8px', padding: '14px 16px' }}>
+              <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#aaaaaa', marginBottom: '8px' }}>
+                {t.jargonCheck}
               </div>
-            ))}
-          </div>
-        )}
-
-        {/* Jargon validation */}
-        {enhancement && enhancement.jargonValidation.length > 0 && (
-          <div className="space-y-1">
-            <p className="text-[10px] font-sans font-semibold tracking-widest uppercase text-muted-foreground mb-2">
-              {t.jargonCheck}
-            </p>
-            {enhancement.jargonValidation.map((j, i) => (
-              <div key={i} className="flex items-center gap-2 text-xs font-mono">
-                <span className={j.isJargon ? 'text-error' : 'text-success'}>
-                  {j.isJargon ? '✗' : '✓'}
-                </span>
-                <span className="text-foreground">{j.word}</span>
-                {j.simpler && (
-                  <span className="text-muted-foreground">→ {j.simpler}</span>
-                )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {enhancement.jargonValidation.map((j, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+                    <span style={{ color: j.isJargon ? '#dc2626' : '#0891b2', fontWeight: 600 }}>
+                      {j.isJargon ? '✗' : '✓'}
+                    </span>
+                    <span style={{ color: '#111111' }}>{j.word}</span>
+                    {j.simpler && (
+                      <span style={{ color: '#aaaaaa' }}>→ {j.simpler}</span>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          )}
 
-        {/* Title suggestion */}
-        {enhancement?.titleSuggestion && (
-          <div className="space-y-1">
-            <p className="text-[10px] font-sans font-semibold tracking-widest uppercase text-muted-foreground">
-              {t.titleSuggestion}
-            </p>
-            <p className="text-sm font-sans text-foreground">{enhancement.titleSuggestion}</p>
-          </div>
-        )}
-      </div>
+          {/* Title suggestion */}
+          {enhancement.titleSuggestion && (
+            <div style={{ background: '#f9f9f8', borderRadius: '8px', padding: '14px 16px' }}>
+              <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#aaaaaa', marginBottom: '6px' }}>
+                {t.titleSuggestion}
+              </div>
+              <p style={{ fontSize: '14px', color: '#111111', lineHeight: 1.6, margin: 0 }}>
+                {enhancement.titleSuggestion}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* CTA button */}
+      {/* Footer button */}
       <button
         onClick={onEnhance}
         disabled={isEnhancing}
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground font-sans font-semibold text-sm tracking-widest uppercase hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed border-t border-primary/30"
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+          padding: '14px 20px',
+          background: '#f0f9ff',
+          border: 'none',
+          borderTop: '1px solid #bae6fd',
+          color: '#0369a1',
+          fontSize: '14px',
+          fontWeight: 600,
+          cursor: isEnhancing ? 'not-allowed' : 'pointer',
+          opacity: isEnhancing ? 0.6 : 1,
+          transition: 'opacity 0.15s',
+        }}
       >
-        {isEnhancing && (
-          <span className="inline-block w-3.5 h-3.5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+        {isEnhancing ? (
+          <span style={{
+            display: 'inline-block', width: '13px', height: '13px',
+            border: '2px solid rgba(3,105,161,0.25)', borderTopColor: '#0369a1',
+            borderRadius: '50%', animation: 'spin 0.7s linear infinite',
+          }} />
+        ) : (
+          <span style={{ fontSize: '14px' }}>✦</span>
         )}
-        {isEnhancing ? t.enhancing : 'Enhance with AI →'}
+        {isEnhancing ? t.enhancing : '✦ Enhance with AI'}
       </button>
     </div>
   );
