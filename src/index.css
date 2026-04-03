@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 0 0% 6%;
+    --foreground: 0 0% 90%;
+
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 90%;
+
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 90%;
+
+    --primary: 187 100% 45%;
+    --primary-foreground: 0 0% 4%;
+
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 90%;
+
+    --muted: 0 0% 14%;
+    --muted-foreground: 0 0% 55%;
+
+    --accent: 187 100% 45%;
+    --accent-foreground: 0 0% 4%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 187 100% 45%;
+
+    --radius: 0px;
+
+    --highlight-long: 45 100% 50%;
+    --highlight-complex: 0 70% 50%;
+    --highlight-passive: 210 100% 55%;
+
+    --gauge-green: 145 70% 45%;
+    --gauge-amber: 35 90% 55%;
+    --gauge-red: 0 70% 50%;
+
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 187 100% 45%;
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-accent: 0 0% 14%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 187 100% 45%;
+
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-sans: 'Inter', sans-serif;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+}
+
+/* Custom tooltip */
+.custom-tooltip {
+  position: relative;
+}
+
+.custom-tooltip .tooltip-content {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: hsl(0 0% 14%);
+  color: hsl(0 0% 90%);
+  border: 1px solid hsl(0 0% 22%);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-family: var(--font-sans);
+  white-space: nowrap;
+  max-width: 300px;
+  white-space: normal;
+  z-index: 50;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.custom-tooltip:hover > .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Hide parent tooltip when a nested tooltip is being hovered */
+.custom-tooltip:has(.custom-tooltip:hover) > .tooltip-content {
+  visibility: hidden;
+  opacity: 0;
+}
+
+/* Highlight animations */
+@keyframes highlight-fade-in {
+  from { opacity: 0; background-color: transparent; }
+  to { opacity: 1; }
+}
+
+.highlight-animate {
+  animation: highlight-fade-in 0.4s ease forwards;
+}
+
+.highlight-long {
+  background-color: hsl(45 100% 50% / 0.2);
+  border-bottom: 2px solid hsl(45 100% 50% / 0.6);
+}
+
+.highlight-complex {
+  text-decoration: underline;
+  text-decoration-color: hsl(0 70% 50%);
+  text-underline-offset: 3px;
+}
+
+.highlight-passive {
+  background-color: hsl(210 100% 55% / 0.2);
+  border-bottom: 2px solid hsl(210 100% 55% / 0.6);
+}
