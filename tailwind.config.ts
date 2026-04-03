@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        mono: ["'JetBrains Mono'", "monospace"],
         sans: ["'Inter'", "sans-serif"],
+        mono: ["'JetBrains Mono'", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -67,6 +67,10 @@ export default {
         "gauge-green": "hsl(var(--gauge-green))",
         "gauge-amber": "hsl(var(--gauge-amber))",
         "gauge-red": "hsl(var(--gauge-red))",
+        warning: "#f59e0b",
+        error: "#f87171",
+        success: "#00d4c8",
+        "text-subtle": "#2a5050",
       },
       borderRadius: {
         lg: "var(--radius)",

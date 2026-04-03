@@ -1,5 +1,4 @@
 import type { SentenceAnalysis } from '@/lib/analyzer';
-import { countSyllables } from '@/lib/syllables';
 import { type Lang, translations } from '@/lib/i18n';
 
 interface AnnotatedTextProps {
@@ -7,109 +6,99 @@ interface AnnotatedTextProps {
   lang: Lang;
 }
 
-type Category = 'long' | 'passive' | 'complex' | 'clean';
+// Red = long OR passive voice | Amber = complex words only | Cyan = clean
+type Severity = 'red' | 'amber' | 'cyan';
 
-function getCategory(sentence: SentenceAnalysis): Category {
-  if (sentence.isLong) return 'long';
-  if (sentence.hasPassiveVoice) return 'passive';
-  if (sentence.complexWords.length > 0) return 'complex';
-  return 'clean';
+function getSeverity(s: SentenceAnalysis): Severity {
+  if (s.isLong || s.hasPassiveVoice) return 'red';
+  if (s.complexWords.length > 0) return 'amber';
+  return 'cyan';
 }
 
-const CATEGORY_STYLES: Record<Category, { bg: string; border: string }> = {
-  long:    { bg: 'rgba(220,38,38,0.12)',  border: 'hsl(0 70% 50%)' },
-  passive: { bg: 'rgba(234,88,12,0.12)',  border: 'hsl(25 95% 50%)' },
-  complex: { bg: 'rgba(202,138,4,0.12)',  border: 'hsl(45 100% 45%)' },
-  clean:   { bg: 'rgba(22,163,74,0.10)',  border: 'hsl(145 70% 45%)' },
+const BORDER: Record<Severity, string> = {
+  red:   'border-l-error',
+  amber: 'border-l-warning',
+  cyan:  'border-l-primary',
 };
 
-function buildTooltip(sentence: SentenceAnalysis, t: (typeof translations)['en']): string {
-  const parts: string[] = [];
-  if (sentence.isLong) parts.push(`${t.longSentence} (${sentence.wordCount} ${t.words}) — ${t.longSentenceTip}`);
-  if (sentence.hasPassiveVoice) parts.push(`${t.passiveVoiceLabel} — ${t.passiveVoiceTip}`);
-  return parts.join(' | ');
+const BG: Record<Severity, string> = {
+  red:   'bg-error/5',
+  amber: 'bg-warning/5',
+  cyan:  'bg-primary/5',
+};
+
+const PILL_BASE = 'px-2 py-0.5 text-[10px] font-sans rounded-sm';
+
+const PILL: Record<Severity, string> = {
+  red:   `${PILL_BASE} bg-error/10 text-error border border-error/20`,
+  amber: `${PILL_BASE} bg-warning/10 text-warning border border-warning/20`,
+  cyan:  `${PILL_BASE} bg-primary/10 text-primary border border-primary/20`,
+};
+
+function getTags(s: SentenceAnalysis, t: (typeof translations)['en']): string[] {
+  const tags: string[] = [];
+  if (s.isLong) tags.push(`${s.wordCount} ${t.words}`);
+  if (s.hasPassiveVoice) tags.push(t.passiveVoiceLabel);
+  for (const w of s.complexWords) tags.push(w.toLowerCase());
+  return tags;
 }
 
-function renderWords(sentence: SentenceAnalysis, t: (typeof translations)['en']) {
-  const complexSet = new Set(sentence.complexWords.map(w => w.toLowerCase()));
-  return sentence.text.split(/(\s+)/).map((word, wi) => {
-    const clean = word.replace(/[^a-zA-Z]/g, '').toLowerCase();
-    if (complexSet.has(clean)) {
-      return (
-        <span key={wi} className="custom-tooltip" style={{ textDecoration: 'underline', textDecorationColor: 'hsl(45 100% 55%)', textUnderlineOffset: '3px' }}>
-          {word}
-          <span className="tooltip-content">
-            {t.complexWord}: "{clean}" ({countSyllables(clean)} syl.) — {t.complexWordTip}
-          </span>
-        </span>
-      );
-    }
-    return <span key={wi}>{word}</span>;
-  });
-}
-
-function SentencePill({ sentence, lang }: { sentence: SentenceAnalysis; lang: Lang }) {
+function SentenceRow({ sentence, lang }: { sentence: SentenceAnalysis; lang: Lang }) {
   const t = translations[lang];
-  const category = getCategory(sentence);
-  const { bg, border } = CATEGORY_STYLES[category];
-  const tooltip = buildTooltip(sentence, t);
+  const severity = getSeverity(sentence);
+  const tags = getTags(sentence, t);
 
   return (
     <div
-      className={`highlight-animate custom-tooltip`}
-      style={{
-        background: bg,
-        borderLeft: `3px solid ${border}`,
-        padding: '6px 10px',
-        marginBottom: '6px',
-        animationDelay: `${sentence.index * 0.04}s`,
-      }}
+      className={`highlight-animate border-l-4 px-4 py-3 ${BORDER[severity]} ${BG[severity]}`}
+      style={{ animationDelay: `${sentence.index * 0.04}s` }}
     >
-      <span className="font-mono text-sm leading-relaxed text-foreground">
-        {renderWords(sentence, t)}
-      </span>
-      {tooltip && <span className="tooltip-content">{tooltip}</span>}
+      <p className="font-mono text-sm leading-relaxed text-foreground">{sentence.text}</p>
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {tags.map((tag) => (
+            <span key={tag} className={PILL[severity]}>{tag}</span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-const LEGEND_ITEMS: { category: Category; key: 'legendLong' | 'legendPassive' | 'legendComplex' | 'legendClean' }[] = [
-  { category: 'long',    key: 'legendLong' },
-  { category: 'passive', key: 'legendPassive' },
-  { category: 'complex', key: 'legendComplex' },
-  { category: 'clean',   key: 'legendClean' },
+const LEGEND = [
+  { severity: 'red'  as Severity, label: (t: (typeof translations)['en']) => `${t.legendLong} / ${t.legendPassive}` },
+  { severity: 'amber' as Severity, label: (t: (typeof translations)['en']) => t.legendComplex },
+  { severity: 'cyan'  as Severity, label: (t: (typeof translations)['en']) => t.legendClean },
 ];
+
+const DOT_COLOR: Record<Severity, string> = {
+  red:   'bg-error',
+  amber: 'bg-warning',
+  cyan:  'bg-primary',
+};
 
 const AnnotatedText = ({ sentences, lang }: AnnotatedTextProps) => {
   const t = translations[lang];
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-        <h2 className="text-sm font-semibold text-primary tracking-widest uppercase font-sans">
-          {t.annotatedText}
-        </h2>
-        <div className="flex items-center gap-3 flex-wrap">
-          {LEGEND_ITEMS.map(({ category, key }) => (
-            <span key={category} className="flex items-center gap-1.5 text-xs text-muted-foreground font-sans">
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: '10px',
-                  height: '10px',
-                  background: CATEGORY_STYLES[category].bg,
-                  borderLeft: `3px solid ${CATEGORY_STYLES[category].border}`,
-                  flexShrink: 0,
-                }}
-              />
-              {t[key]}
-            </span>
-          ))}
-        </div>
+      <h2 className="text-sm font-semibold text-primary tracking-widest uppercase font-sans mb-3">
+        {t.annotatedText}
+      </h2>
+
+      <div className="bg-card border border-border space-y-px">
+        {sentences.map((s) => (
+          <SentenceRow key={s.index} sentence={s} lang={lang} />
+        ))}
       </div>
-      <div className="bg-secondary border border-border p-4 space-y-0">
-        {sentences.map(s => (
-          <SentencePill key={s.index} sentence={s} lang={lang} />
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-4 mt-3 px-1">
+        {LEGEND.map(({ severity, label }) => (
+          <span key={severity} className="flex items-center gap-1.5 text-xs text-muted-foreground font-sans">
+            <span className={`w-2 h-2 rounded-full shrink-0 ${DOT_COLOR[severity]}`} />
+            {label(t)}
+          </span>
         ))}
       </div>
     </div>

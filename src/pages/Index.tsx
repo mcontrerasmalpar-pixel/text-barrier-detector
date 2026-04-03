@@ -74,6 +74,29 @@ const Index = () => {
         </div>
       </header>
 
+      {/* Hero */}
+      {!result && (
+        <div className="px-4 pt-12 pb-8 text-center max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-foreground leading-tight mb-3">
+            Decode your text.{' '}
+            <span className="text-primary">Make it accessible.</span>
+          </h2>
+          <p className="text-sm text-muted-foreground mb-6">
+            Detect readability barriers instantly — long sentences, passive voice, complex words.
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {['Flesch score', 'Sentence heatmap', 'AI rewrites', 'No login needed'].map((pill) => (
+              <span
+                key={pill}
+                className="px-3 py-1 text-xs border border-primary/30 text-primary bg-primary/5"
+              >
+                {pill}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col lg:flex-row">
         {/* Left panel */}
         <div className="flex-1 p-4 space-y-4 min-w-0">
@@ -89,15 +112,7 @@ const Index = () => {
             <>
               <AnnotatedText sentences={result.sentences} lang={lang} />
 
-              {/* Action buttons */}
-              <div className="flex gap-2">
-                <button
-                  onClick={handleEnhance}
-                  disabled={isEnhancing}
-                  className="px-4 py-2 text-xs font-mono border border-primary/40 text-primary hover:bg-primary/10 transition-colors disabled:opacity-40"
-                >
-                  {isEnhancing ? t.enhancing : t.enhance}
-                </button>
+              <div className="flex justify-end">
                 <button
                   onClick={() => generatePDF(result, enhancement)}
                   className="px-4 py-2 text-xs font-mono border border-border text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
@@ -106,7 +121,12 @@ const Index = () => {
                 </button>
               </div>
 
-              {enhancement && <SuggestionCard enhancement={enhancement} lang={lang} />}
+              <SuggestionCard
+                enhancement={enhancement}
+                isEnhancing={isEnhancing}
+                onEnhance={handleEnhance}
+                lang={lang}
+              />
             </>
           )}
 
