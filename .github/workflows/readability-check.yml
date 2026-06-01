@@ -1,0 +1,123 @@
+name: Readability Check
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+    paths:
+      - '**.md'
+      - '**.txt'
+  issues:
+    types: [opened, edited]
+
+jobs:
+  analyze-readability:
+    name: Analyze text readability
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+      checks: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Analyze PR body readability
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { execSync } = require('child_process');
+            const fs = require('fs');
+
+            const body = context.payload.pull_request.body || '';
+            if (!body.trim()) {
+              console.log('No PR body to analyze.');
+              return;
+            }
+
+            fs.writeFileSync('/tmp/input.txt', body);
+            const result = execSync('node scripts/analyze.mjs /tmp/input.txt', { encoding: 'utf8' });
+            const analysis = JSON.parse(result);
+
+            const emoji = analysis.overallScore >= 70 ? '🟢' : analysis.overallScore >= 40 ? '🟡' : '🔴';
+            const label = analysis.fleschLabel;
+
+            let comment = `## ${emoji} Text Barrier Detector — Readability Report\n\n`;
+            comment += `| Metric | Value |\n|--------|-------|\n`;
+            comment += `| Overall Score | **${analysis.overallScore}/100** |\n`;
+            comment += `| Flesch Reading Ease | ${analysis.fleschScore} (${label}) |\n`;
+            comment += `| Grade Level | ${analysis.gradeLevel} |\n`;
+            comment += `| Avg Sentence Length | ${analysis.avgSentenceLength} words |\n`;
+            comment += `| Passive Voice Sentences | ${analysis.passiveCount} |\n`;
+            comment += `| Complex Words | ${analysis.complexWordCount} |\n`;
+            comment += `| Structure Score | ${analysis.structureScore}/100 |\n\n`;
+
+            if (analysis.suggestions.length > 0) {
+              comment += `### 💡 Suggestions\n`;
+              analysis.suggestions.forEach(s => { comment += `- ${s}\n`; });
+              comment += `\n`;
+            }
+
+            comment += `> Powered by [Text Barrier Detector](https://prose-decoder-bot.vercel.app)`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: comment
+            });
+
+            core.setOutput('overall_score', analysis.overallScore);
+            if (analysis.overallScore < 30) {
+              core.setFailed(`Readability score is too low (${analysis.overallScore}/100). Please simplify the PR description.`);
+            }
+
+      - name: Analyze Issue body readability
+        if: github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { execSync } = require('child_process');
+            const fs = require('fs');
+
+            const body = context.payload.issue.body || '';
+            if (!body.trim()) {
+              console.log('No issue body to analyze.');
+              return;
+            }
+
+            fs.writeFileSync('/tmp/input.txt', body);
+            const result = execSync('node scripts/analyze.mjs /tmp/input.txt', { encoding: 'utf8' });
+            const analysis = JSON.parse(result);
+
+            const emoji = analysis.overallScore >= 70 ? '🟢' : analysis.overallScore >= 40 ? '🟡' : '🔴';
+
+            let comment = `## ${emoji} Text Barrier Detector — Readability Report\n\n`;
+            comment += `| Metric | Value |\n|--------|-------|\n`;
+            comment += `| Overall Score | **${analysis.overallScore}/100** |\n`;
+            comment += `| Flesch Reading Ease | ${analysis.fleschScore} (${analysis.fleschLabel}) |\n`;
+            comment += `| Grade Level | ${analysis.gradeLevel} |\n`;
+            comment += `| Avg Sentence Length | ${analysis.avgSentenceLength} words |\n`;
+            comment += `| Passive Voice Sentences | ${analysis.passiveCount} |\n`;
+            comment += `| Complex Words | ${analysis.complexWordCount} |\n\n`;
+
+            if (analysis.suggestions.length > 0) {
+              comment += `### 💡 Suggestions\n`;
+              analysis.suggestions.forEach(s => { comment += `- ${s}\n`; });
+              comment += `\n`;
+            }
+
+            comment += `> Powered by [Text Barrier Detector](https://prose-decoder-bot.vercel.app)`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: comment
+            });
