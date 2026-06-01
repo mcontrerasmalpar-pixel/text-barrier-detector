@@ -42,7 +42,7 @@ Text Barrier Detector analyzes any piece of writing for readability and accessib
 
 ## CEFR Text Level Classification
 
-Every analysis now includes a **CEFR-inspired level** (A1–C2) derived from five weighted dimensions:
+Every analysis includes a **CEFR-inspired level** (A1–C2) derived from five weighted dimensions:
 
 | Level | Label | Score range | Audience |
 |-------|-------|-------------|----------|
