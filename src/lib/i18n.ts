@@ -41,6 +41,8 @@ export const translations = {
     legendComplex: 'Complex words',
     legendPassive: 'Passive voice',
     legendClean: 'Clean sentence',
+    textLevel: 'Text Level',
+    levelScore: 'Score',
   },
   es: {
     title: 'DETECTOR DE BARRERAS DE TEXTO',
@@ -84,6 +86,8 @@ export const translations = {
     legendComplex: 'Palabras complejas',
     legendPassive: 'Voz pasiva',
     legendClean: 'Oración limpia',
+    textLevel: 'Nivel de Texto',
+    levelScore: 'Puntuación',
   },
 } as const;
 
