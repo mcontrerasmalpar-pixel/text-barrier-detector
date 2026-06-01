@@ -3,12 +3,13 @@
 > An in-browser text accessibility analyzer powered by rule-based NLP and Claude AI.
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-prose--decoder--bot.vercel.app-00C7B7?style=flat-square&logo=vercel)](https://prose-decoder-bot.vercel.app)
-!\[TypeScript](https://img.shields.io/badge/TypeScript-97.2%25-3178C6?style=flat-square\&logo=typescript)
-!\[React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square\&logo=react)
-!\[Vite](https://img.shields.io/badge/Vite-5-646CFF?style=flat-square\&logo=vite)
-!\[License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
+[![Readability Check](https://img.shields.io/badge/GitHub%20Action-Readability%20Check-2088FF?style=flat-square&logo=github-actions)](https://github.com/mcontrerasmalpar-pixel/text-barrier-detector/actions/workflows/readability-check.yml)
+![TypeScript](https://img.shields.io/badge/TypeScript-97.2%25-3178C6?style=flat-square\&logo=typescript)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square\&logo=react)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=flat-square\&logo=vite)
+![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 
-\---
+---
 
 ## What it does
 
@@ -21,20 +22,58 @@ Text Barrier Detector analyzes any piece of writing for readability and accessib
 * **Overall accessibility score** (weighted composite metric)
 * **AI-powered rewrites** via Claude — simplifies your hardest sentences on demand
 
-\---
+---
+
+## GitHub Action: Readability Check
+
+This repo includes a **GitHub Action** that automatically runs the readability engine on every PR description and Issue body, then posts a structured report as a comment.
+
+### How it works
+
+1. A PR or Issue is opened or edited
+2. The action extracts the body text and runs it through the readability engine (`scripts/analyze.mjs`)
+3. A comment is posted with the full metrics table and suggestions
+4. If the overall score is below **30/100**, the check fails — prompting the author to simplify their text
+
+### Example output
+
+```
+🟡 Text Barrier Detector — Readability Report
+
+| Metric                  | Value              |
+|-------------------------|--------------------|
+| Overall Score           | 54/100             |
+| Flesch Reading Ease     | 48.3 (Moderate)    |
+| Grade Level             | 11.2               |
+| Avg Sentence Length     | 18.4 words         |
+| Passive Voice Sentences | 2                  |
+| Complex Words           | 7                  |
+| Structure Score         | 40/100             |
+
+💡 Suggestions
+- Convert passive voice to active voice for clarity.
+- Replace complex words with simpler alternatives.
+```
+
+### Use it in your own repo
+
+Copy `.github/workflows/readability-check.yml` and `scripts/analyze.mjs` to your repository. No dependencies or tokens needed beyond the default `GITHUB_TOKEN`.
+
+---
 
 ## Features
 
-|Feature|Description|
+| Feature | Description |
 |-|-|
-|🧠 In-browser analysis|No API calls needed for core analysis — runs entirely client-side|
-|🎨 Sentence heatmap|Red = long sentence, orange = passive voice, yellow = complex words, green = clean|
-|📊 Metrics sidebar|Visual gauge, grade level, avg sentence length, passive voice count|
-|🤖 Claude AI enhancement|Optional: sends complex sentences to Claude for plain-language rewrites|
-|🌐 Bilingual UI|Full English / Spanish interface toggle|
-|⚡ Zero setup|No accounts, no keys required for base functionality|
+| 🧠 In-browser analysis | No API calls needed for core analysis — runs entirely client-side |
+| 🎨 Sentence heatmap | Red = long sentence, orange = passive voice, yellow = complex words, green = clean |
+| 📊 Metrics sidebar | Visual gauge, grade level, avg sentence length, passive voice count |
+| 🤖 Claude AI enhancement | Optional: sends complex sentences to Claude for plain-language rewrites |
+| 🌐 Bilingual UI | Full English / Spanish interface toggle |
+| ⚡ Zero setup | No accounts, no keys required for base functionality |
+| 🔁 GitHub Action | Automated readability check on PRs and Issues via GitHub API |
 
-\---
+---
 
 ## How the scoring works
 
@@ -55,7 +94,7 @@ Overall Score =
 
 **Passive voice** is detected via regex pattern matching on auxiliary verb + past participle constructions.
 
-\---
+---
 
 ## Tech stack
 
@@ -64,16 +103,17 @@ Overall Score =
 * **Styling**: Tailwind CSS + shadcn/ui (Radix UI primitives)
 * **AI**: Anthropic Claude (`claude-sonnet-4-20250514`) via direct browser API call
 * **Testing**: Vitest + Testing Library + Playwright
+* **CI**: GitHub Actions (readability check on PRs and Issues)
 * **Built with**: [Lovable](https://lovable.dev)
 
-\---
+---
 
 ## Getting started
 
 ```bash
 # Clone the repo
-git clone https://github.com/mcontrerasmalpar-pixel/prose-decoder-bot.git
-cd prose-decoder-bot
+git clone https://github.com/mcontrerasmalpar-pixel/text-barrier-detector.git
+cd text-barrier-detector
 
 # Install dependencies
 npm install
@@ -84,38 +124,60 @@ npm run dev
 
 Open [http://localhost:8080](http://localhost:8080) in your browser.
 
-\---
+### Run the CLI analyzer
+
+```bash
+node scripts/analyze.mjs path/to/your/file.txt
+```
+
+Returns a JSON object with all readability metrics.
+
+---
 
 ## Project structure
 
 ```
+.github/
+└── workflows/
+    └── readability-check.yml   # GitHub Action for PRs and Issues
+scripts/
+└── analyze.mjs                 # Standalone CLI analyzer (no deps)
 src/
 ├── components/
-│   ├── AnnotatedText.tsx    # Sentence heatmap with tooltips
-│   ├── MetricsSidebar.tsx   # Score gauges and metrics
-│   ├── SuggestionCard.tsx   # Claude AI rewrite suggestions
-│   └── TextInput.tsx        # Input area and analyze button
+│   ├── AnnotatedText.tsx        # Sentence heatmap with tooltips
+│   ├── MetricsSidebar.tsx       # Score gauges and metrics
+│   ├── SuggestionCard.tsx       # Claude AI rewrite suggestions
+│   └── TextInput.tsx            # Input area and analyze button
 ├── lib/
-│   ├── analyzer.ts          # Core readability engine (no deps)
-│   ├── claudeEnhancer.ts    # Claude API integration
-│   ├── i18n.ts              # EN/ES translations
-│   └── syllables.ts         # Syllable counter
+│   ├── analyzer.ts              # Core readability engine (no deps)
+│   ├── claudeEnhancer.ts        # Claude API integration
+│   ├── i18n.ts                  # EN/ES translations
+│   └── syllables.ts             # Syllable counter
 └── pages/
-    └── Index.tsx            # Main page and state management
+    └── Index.tsx                # Main page and state management
 ```
 
-\---
+---
 
 ## Roadmap
 
-* \[ ] Fix tooltip overlap on dense text
-* \[ ] Export analysis as PDF report
-* \[ ] Improve passive voice detection for Spanish
-* \[ ] Add support for additional languages (PT, FR)
-* \[ ] Domain-specific jargon detection (medical, legal, academic)
-* \[ ] Keyboard accessibility audit
+* [ ] Fix tooltip overlap on dense text
+* [ ] Export analysis as PDF report
+* [ ] Improve passive voice detection for Spanish
+* [ ] Add support for additional languages (PT, FR)
+* [ ] Domain-specific jargon detection (medical, legal, academic)
+* [ ] Keyboard accessibility audit
+* [ ] GitHub App version with OAuth for repo README analysis
 
-\---
+---
+
+## Support
+
+For questions, bug reports, or feedback: **maria@mcontrerasmalpartida.dev**
+
+Open an [issue](https://github.com/mcontrerasmalpar-pixel/text-barrier-detector/issues) or reach out directly — all reports are reviewed and responded to.
+
+---
 
 ## About
 
@@ -123,5 +185,4 @@ Built by [Maria Contreras](https://github.com/mcontrerasmalpar-pixel) — AI eng
 
 Part of a broader research interest in text accessibility barriers, alongside a multilingual Sign Language Translator (ASL, LSM, BSL, DGS).
 
-
-
+> Works with GitHub · [GitHub Developer Program](https://github.com/developer/register)
