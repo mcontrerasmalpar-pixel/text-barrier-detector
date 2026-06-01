@@ -36,32 +36,51 @@ jobs:
             const fs = require('fs');
 
             const body = context.payload.pull_request.body || '';
-            if (!body.trim()) {
-              console.log('No PR body to analyze.');
-              return;
-            }
+            if (!body.trim()) { console.log('No PR body to analyze.'); return; }
 
             fs.writeFileSync('/tmp/input.txt', body);
             const result = execSync('node scripts/analyze.mjs /tmp/input.txt', { encoding: 'utf8' });
-            const analysis = JSON.parse(result);
+            const a = JSON.parse(result);
+            const lv = a.level;
 
-            const emoji = analysis.overallScore >= 70 ? '🟢' : analysis.overallScore >= 40 ? '🟡' : '🔴';
-            const label = analysis.fleschLabel;
+            const levelEmoji = { A1: '🟢', A2: '🟢', B1: '🟡', B2: '🟠', C1: '🔴', C2: '🔴' };
+            const overallEmoji = a.overallScore >= 70 ? '🟢' : a.overallScore >= 40 ? '🟡' : '🔴';
 
-            let comment = `## ${emoji} Text Barrier Detector — Readability Report\n\n`;
+            let comment = `## ${overallEmoji} Text Barrier Detector — Readability Report\n\n`;
+
+            // Level badge
+            comment += `### ${levelEmoji[lv.level]} Text Level: \`${lv.level}\` — ${lv.label}\n`;
+            comment += `> ${lv.description}\n`;
+            comment += `> **Recommended audience:** ${lv.audience}\n\n`;
+
+            // Metrics table
             comment += `| Metric | Value |\n|--------|-------|\n`;
-            comment += `| Overall Score | **${analysis.overallScore}/100** |\n`;
-            comment += `| Flesch Reading Ease | ${analysis.fleschScore} (${label}) |\n`;
-            comment += `| Grade Level | ${analysis.gradeLevel} |\n`;
-            comment += `| Avg Sentence Length | ${analysis.avgSentenceLength} words |\n`;
-            comment += `| Passive Voice Sentences | ${analysis.passiveCount} |\n`;
-            comment += `| Complex Words | ${analysis.complexWordCount} |\n`;
-            comment += `| Structure Score | ${analysis.structureScore}/100 |\n\n`;
+            comment += `| Overall Score | **${a.overallScore}/100** |\n`;
+            comment += `| Level Score | ${lv.score}/100 |\n`;
+            comment += `| Flesch Reading Ease | ${a.fleschScore} (${a.fleschLabel}) |\n`;
+            comment += `| Grade Level | ${a.gradeLevel} |\n`;
+            comment += `| Avg Sentence Length | ${a.avgSentenceLength} words |\n`;
+            comment += `| Passive Voice Sentences | ${a.passiveCount} |\n`;
+            comment += `| Complex Words | ${a.complexWordCount} |\n`;
+            comment += `| Structure Score | ${a.structureScore}/100 |\n\n`;
 
-            if (analysis.suggestions.length > 0) {
-              comment += `### 💡 Suggestions\n`;
-              analysis.suggestions.forEach(s => { comment += `- ${s}\n`; });
-              comment += `\n`;
+            // Dimension breakdown
+            const d = lv.dimensions;
+            comment += `### 📊 Dimension Breakdown\n`;
+            comment += `| Dimension | Score |\n|-----------|-------|\n`;
+            comment += `| Readability (Flesch) | ${Math.round(d.readabilityScore)}/100 |\n`;
+            comment += `| Sentence Length | ${Math.round(d.sentenceLengthScore)}/100 |\n`;
+            comment += `| Passive Voice | ${Math.round(d.passiveVoiceScore)}/100 |\n`;
+            comment += `| Complexity | ${Math.round(d.complexityScore)}/100 |\n`;
+            comment += `| Structure | ${Math.round(d.structureScore)}/100 |\n\n`;
+
+            // Tips to reach next level
+            if (lv.tips && lv.tips.length > 0) {
+              const next = { C2: 'C1', C1: 'B2', B2: 'B1', B1: 'A2', A2: 'A1', A1: null }[lv.level];
+              if (next) comment += `### 🎯 Tips to reach level ${next}\n`;
+              else      comment += `### 💡 Tips\n`;
+              lv.tips.forEach(t => { comment += `- ${t}\n`; });
+              comment += '\n';
             }
 
             comment += `> Powered by [Text Barrier Detector](https://prose-decoder-bot.vercel.app)`;
@@ -73,9 +92,8 @@ jobs:
               body: comment
             });
 
-            core.setOutput('overall_score', analysis.overallScore);
-            if (analysis.overallScore < 30) {
-              core.setFailed(`Readability score is too low (${analysis.overallScore}/100). Please simplify the PR description.`);
+            if (a.overallScore < 30) {
+              core.setFailed(`Readability score too low (${a.overallScore}/100). Level: ${lv.level} — ${lv.label}.`);
             }
 
       - name: Analyze Issue body readability
@@ -87,30 +105,45 @@ jobs:
             const fs = require('fs');
 
             const body = context.payload.issue.body || '';
-            if (!body.trim()) {
-              console.log('No issue body to analyze.');
-              return;
-            }
+            if (!body.trim()) { console.log('No issue body to analyze.'); return; }
 
             fs.writeFileSync('/tmp/input.txt', body);
             const result = execSync('node scripts/analyze.mjs /tmp/input.txt', { encoding: 'utf8' });
-            const analysis = JSON.parse(result);
+            const a = JSON.parse(result);
+            const lv = a.level;
 
-            const emoji = analysis.overallScore >= 70 ? '🟢' : analysis.overallScore >= 40 ? '🟡' : '🔴';
+            const levelEmoji = { A1: '🟢', A2: '🟢', B1: '🟡', B2: '🟠', C1: '🔴', C2: '🔴' };
+            const overallEmoji = a.overallScore >= 70 ? '🟢' : a.overallScore >= 40 ? '🟡' : '🔴';
 
-            let comment = `## ${emoji} Text Barrier Detector — Readability Report\n\n`;
+            let comment = `## ${overallEmoji} Text Barrier Detector — Readability Report\n\n`;
+
+            comment += `### ${levelEmoji[lv.level]} Text Level: \`${lv.level}\` — ${lv.label}\n`;
+            comment += `> ${lv.description}\n`;
+            comment += `> **Recommended audience:** ${lv.audience}\n\n`;
+
             comment += `| Metric | Value |\n|--------|-------|\n`;
-            comment += `| Overall Score | **${analysis.overallScore}/100** |\n`;
-            comment += `| Flesch Reading Ease | ${analysis.fleschScore} (${analysis.fleschLabel}) |\n`;
-            comment += `| Grade Level | ${analysis.gradeLevel} |\n`;
-            comment += `| Avg Sentence Length | ${analysis.avgSentenceLength} words |\n`;
-            comment += `| Passive Voice Sentences | ${analysis.passiveCount} |\n`;
-            comment += `| Complex Words | ${analysis.complexWordCount} |\n\n`;
+            comment += `| Overall Score | **${a.overallScore}/100** |\n`;
+            comment += `| Level Score | ${lv.score}/100 |\n`;
+            comment += `| Flesch Reading Ease | ${a.fleschScore} (${a.fleschLabel}) |\n`;
+            comment += `| Grade Level | ${a.gradeLevel} |\n`;
+            comment += `| Avg Sentence Length | ${a.avgSentenceLength} words |\n`;
+            comment += `| Passive Voice Sentences | ${a.passiveCount} |\n`;
+            comment += `| Complex Words | ${a.complexWordCount} |\n\n`;
 
-            if (analysis.suggestions.length > 0) {
-              comment += `### 💡 Suggestions\n`;
-              analysis.suggestions.forEach(s => { comment += `- ${s}\n`; });
-              comment += `\n`;
+            const d = lv.dimensions;
+            comment += `### 📊 Dimension Breakdown\n`;
+            comment += `| Dimension | Score |\n|-----------|-------|\n`;
+            comment += `| Readability (Flesch) | ${Math.round(d.readabilityScore)}/100 |\n`;
+            comment += `| Sentence Length | ${Math.round(d.sentenceLengthScore)}/100 |\n`;
+            comment += `| Passive Voice | ${Math.round(d.passiveVoiceScore)}/100 |\n`;
+            comment += `| Complexity | ${Math.round(d.complexityScore)}/100 |\n`;
+            comment += `| Structure | ${Math.round(d.structureScore)}/100 |\n\n`;
+
+            if (lv.tips && lv.tips.length > 0) {
+              const next = { C2: 'C1', C1: 'B2', B2: 'B1', B1: 'A2', A2: 'A1', A1: null }[lv.level];
+              if (next) comment += `### 🎯 Tips to reach level ${next}\n`;
+              lv.tips.forEach(t => { comment += `- ${t}\n`; });
+              comment += '\n';
             }
 
             comment += `> Powered by [Text Barrier Detector](https://prose-decoder-bot.vercel.app)`;
