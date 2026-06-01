@@ -58,6 +58,7 @@ function classifyLevel(analysis) {
   const level = levelKeys.find(l => score >= LEVEL_MAP[l].minScore) ?? 'C2';
   const meta = LEVEL_MAP[level];
 
+
   const tips = [];
   if (dims.sentenceLengthScore < 70) tips.push('Break long sentences into shorter ones (target: under 15 words).');
   if (dims.passiveVoiceScore < 70)   tips.push('Rewrite passive-voice sentences in active voice.');

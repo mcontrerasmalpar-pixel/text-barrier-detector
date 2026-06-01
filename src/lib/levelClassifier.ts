@@ -79,52 +79,29 @@ const LEVEL_MAP: Record<TextLevel, { label: string; description: string; audienc
   },
 };
 
-/**
- * Maps a Flesch score (0-100) to a normalized 0-100 accessibility score.
- * Higher Flesch = more accessible = higher score.
- */
 function normalizeFleschScore(flesch: number): number {
   return Math.min(100, Math.max(0, flesch));
 }
 
-/**
- * Maps grade level (0-20+) to 0-100 accessibility score.
- * Grade 4 or below → 100, Grade 16+ → 0.
- */
 function normalizeGradeLevel(grade: number): number {
   return Math.min(100, Math.max(0, 100 - (grade - 4) * (100 / 12)));
 }
 
-/**
- * Maps avg sentence length to 0-100 accessibility score.
- * <=10 words → 100, >=35 words → 0.
- */
 function normalizeSentenceLength(avg: number): number {
   return Math.min(100, Math.max(0, 100 - (avg - 10) * (100 / 25)));
 }
 
-/**
- * Maps passive voice ratio (0-1) to 0-100 accessibility score.
- * 0% passive → 100, 50%+ → 0.
- */
 function normalizePassiveVoice(passiveCount: number, totalSentences: number): number {
   const ratio = totalSentences > 0 ? passiveCount / totalSentences : 0;
   return Math.min(100, Math.max(0, 100 - ratio * 200));
 }
 
-/**
- * Maps complex word ratio to 0-100 accessibility score.
- * 0% complex words → 100, 20%+ complex words → 0.
- */
 function normalizeComplexity(complexCount: number, totalWords: number): number {
   if (totalWords === 0) return 100;
   const ratio = complexCount / totalWords;
   return Math.min(100, Math.max(0, 100 - ratio * 500));
 }
 
-/**
- * Generates tips to improve the text toward the next level.
- */
 function generateTips(level: TextLevel, dims: LevelDimensions): string[] {
   const tips: string[] = [];
 
@@ -152,9 +129,6 @@ function generateTips(level: TextLevel, dims: LevelDimensions): string[] {
   return tips.slice(0, 3);
 }
 
-/**
- * Classifies text into a CEFR-inspired level based on AnalysisResult.
- */
 export function classifyLevel(analysis: AnalysisResult): LevelResult {
   const dims: LevelDimensions = {
     readabilityScore: normalizeFleschScore(analysis.fleschScore),
@@ -192,10 +166,6 @@ export function classifyLevel(analysis: AnalysisResult): LevelResult {
   };
 }
 
-/**
- * Returns a color associated with each level for UI rendering.
- * Palette follows traffic-light convention: green (easy) → red (hard).
- */
 export function getLevelColor(level: TextLevel): string {
   const colors: Record<TextLevel, string> = {
     A1: '#22c55e', // green-500
@@ -208,10 +178,7 @@ export function getLevelColor(level: TextLevel): string {
   return colors[level];
 }
 
-/**
- * Returns the next target level (one step easier).
- * Returns null if already at A1.
- */
+
 export function getNextLevel(level: TextLevel): TextLevel | null {
   const order: TextLevel[] = ['C2', 'C1', 'B2', 'B1', 'A2', 'A1'];
   const idx = order.indexOf(level);

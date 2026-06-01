@@ -30,10 +30,7 @@ export interface AnalysisResult {
 }
 
 function splitSentences(text: string): string[] {
-  return text
-    .split(/(?<=[.!?])\s+/)
-    .map(s => s.trim())
-    .filter(s => s.length > 0);
+  return text.split(/(?<=[.!?])\s+/).map(s => s.trim()).filter(s => s.length > 0);
 }
 
 function getWords(text: string): string[] {
@@ -46,9 +43,7 @@ function detectPassiveVoice(sentence: string): boolean {
 }
 
 function findComplexWords(words: string[]): string[] {
-  return words
-    .map(w => w.replace(/[^a-zA-Z]/g, ''))
-    .filter(w => w.length > 0 && countSyllables(w) > 3);
+  return words.map(w => w.replace(/[^a-zA-Z]/g, '')).filter(w => w.length > 0 && countSyllables(w) > 3);
 }
 
 function computeStructureScore(text: string): number {
@@ -75,7 +70,6 @@ export function analyzeText(text: string): AnalysisResult {
   const totalWords = allWords.length;
   const totalSentences = Math.max(sentences.length, 1);
   const totalSyllables = allWords.reduce((sum, w) => sum + countSyllables(w.replace(/[^a-zA-Z]/g, '')), 0);
-
   const avgSentenceLength = totalWords / totalSentences;
 
   const fleschScore = Math.max(0, Math.min(100,
@@ -94,33 +88,19 @@ export function analyzeText(text: string): AnalysisResult {
     const isLong = words.length > 20;
     const hasPassive = detectPassiveVoice(s);
     const complex = findComplexWords(words);
-
     if (hasPassive) passiveCount++;
     complexWordCount += complex.length;
-
-    return {
-      text: s,
-      wordCount: words.length,
-      isLong,
-      hasPassiveVoice: hasPassive,
-      complexWords: complex,
-      index: i,
-    };
+    return { text: s, wordCount: words.length, isLong, hasPassiveVoice: hasPassive, complexWords: complex, index: i };
   });
 
   const structureScore = computeStructureScore(text);
 
-  const fleschNorm = fleschScore;
   const sentenceLengthScore = Math.max(0, 100 - (sentenceAnalyses.filter(s => s.isLong).length / totalSentences) * 100);
   const passiveScore = Math.max(0, 100 - (passiveCount / totalSentences) * 100);
   const complexScore = Math.max(0, 100 - (complexWordCount / totalWords) * 200);
-
   const overallScore = Math.round(
-    fleschNorm * 0.35 +
-    sentenceLengthScore * 0.2 +
-    passiveScore * 0.15 +
-    Math.max(0, complexScore) * 0.15 +
-    structureScore * 0.15
+    fleschScore * 0.35 + sentenceLengthScore * 0.2 + passiveScore * 0.15 +
+    Math.max(0, complexScore) * 0.15 + structureScore * 0.15
   );
 
   const suggestions: string[] = [];
