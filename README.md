@@ -22,14 +22,14 @@ Built for people who write or review English product copy (docs, onboarding, ema
 
 | Output | Detail |
 |--------|--------|
-| Flesch Reading Ease | 0–100 score with a plain label (Very easy → Very difficult) |
-| Flesch–Kincaid grade | Approximate U.S. grade level |
+| Ease score | Flesch (en) or Fernández-Huerta (es), 0–100 with a plain label |
+| Flesch–Kincaid grade | Approximate U.S. grade level (syllables follow analysis language) |
 | CEFR-style level | A1–C2 band with audience note and tips toward the next band |
 | Sentence heatmap | Long sentences, passive voice, and complex words highlighted |
 | Structure score | Rewards paragraphs, lists, and headings |
 | Overall score | Weighted composite of the metrics above |
 | Optional rewrites | Claude can suggest plain-language alternatives for hard sentences |
-| UI language | English / Spanish toggle |
+| UI / analysis language | English / Spanish toggle (inherits UI language for heuristics) |
 
 Core analysis runs entirely in the browser. Claude is optional and only used when you ask for rewrites.
 
@@ -54,21 +54,24 @@ Behavior changes (scoring, Action thresholds, UX contracts) update the relevant 
 **Overall score** (same weights as the level score):
 
 ```
-Flesch Reading Ease   × 0.35
-Sentence length       × 0.20
-Passive voice         × 0.15
-Complex-word density  × 0.15
-Structure             × 0.15
+Ease score (Flesch or Fernández-Huerta)   × 0.35
+Sentence length                           × 0.20
+Passive voice                             × 0.15
+Complex-word density                      × 0.15
+Structure                                 × 0.15
 ```
 
 | Heuristic | Rule of thumb in this repo |
 |-----------|----------------------------|
 | Long sentence | More than 20 words |
-| Complex word | More than 3 syllables |
-| Passive voice | English auxiliary + past participle pattern (regex) |
+| Complex word | ≥4 syllables (en and es) |
+| Passive voice (en) | English auxiliary + past participle pattern |
+| Passive voice (es) | *ser* + participle; *se* + 3rd-person patterns |
+| Ease (en) | Flesch Reading Ease |
+| Ease (es) | Fernández-Huerta |
 | Structure | Paragraph breaks, lists, and headings |
 
-The A1–C2 labels are **CEFR-inspired composites**, not a certified language exam. Passive detection is English-oriented; Spanish UI does not yet mean Spanish-grade NLP. Treat scores as a review aid, not a compliance stamp.
+The A1–C2 labels are **CEFR-inspired composites**, not a certified language exam. Spanish heuristics are approximate client-side rules—not certified NLP. Treat scores as a review aid, not a compliance stamp. Spec: [`specs/features/01-spanish-heuristics.md`](./specs/features/01-spanish-heuristics.md).
 
 Full contract: [`specs/product.md`](./specs/product.md).
 
@@ -122,6 +125,7 @@ CLI (JSON metrics to stdout):
 
 ```bash
 node scripts/analyze.mjs path/to/your/file.txt
+node scripts/analyze.mjs --lang=es path/to/spanish.txt
 ```
 
 Useful scripts: `npm run build`, `npm test`, `npm run lint`.
@@ -140,11 +144,12 @@ scripts/analyze.mjs              # Zero-dep CLI used by the Action
 src/
   components/                    # Input, heatmap, metrics, suggestions
   lib/
-    analyzer.ts                  # Core readability engine
+    analyzer.ts                  # Core readability engine (en|es)
     levelClassifier.ts           # CEFR-style bands
     claudeEnhancer.ts            # Optional rewrites
     i18n.ts                      # EN / ES strings
-    syllables.ts
+    syllables.ts                 # English + Spanish syllable heuristics
+    passive/                     # en + es passive detectors
   pages/Index.tsx
 ```
 
@@ -154,7 +159,7 @@ src/
 
 Priorities that would matter in a hiring conversation (each needs a feature spec under `specs/features/` before implementation):
 
-1. Stronger Spanish (and later PT/FR) heuristics—not only UI strings
+1. Portuguese / French heuristics (Spanish shipped—see Feature 01)
 2. Keyboard and screen-reader pass on the heatmap and metrics
 3. PDF / shareable report export (`generatePDF` exists; wire and verify)
 4. Domain jargon packs (docs, legal, medical) as optional overlays
