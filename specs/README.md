@@ -12,6 +12,12 @@ This repo is maintained with **spec-anchored** Spec-Driven Development (SDD): th
 
 Small typo fixes do not need a feature file. Anything that changes scoring, UX contracts, or Action behavior does.
 
+## Feature specs
+
+| ID | Spec | Status |
+|----|------|--------|
+| 01 | [Spanish heuristics](./features/01-spanish-heuristics.md) | specified |
+
 ## Why here
 
 Text Barrier Detector is easy to “improve” in ways that break trust (silent score changes, English-only heuristics sold as multilingual, optional AI that becomes required). Specs make those trade-offs explicit before code lands.
