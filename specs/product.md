@@ -32,10 +32,16 @@ Product and docs teams ship unclear English copy. Readers bounce or open support
 | CLI | `node scripts/analyze.mjs <file>` → JSON |
 | GitHub Action | Comment + fail if overall score &lt; 30 |
 
+## Planned (specified, not shipped)
+
+| Capability | Spec |
+|------------|------|
+| Spanish analysis heuristics (passive, syllables, readability formula) | [`features/01-spanish-heuristics.md`](./features/01-spanish-heuristics.md) |
+
 ## Out of scope (current)
 
 - Certified CEFR assessment
-- Strong Spanish/PT/FR linguistic analysis
+- Portuguese / French linguistic analysis (after Spanish)
 - Required accounts or paid gate for core Analyze
 - Guaranteed PDF export (code may exist; not a shipped contract yet)
 - GitHub App / OAuth repo scanning
@@ -51,7 +57,7 @@ Overall / level score =
   Structure             × 0.15
 ```
 
-Heuristics:
+Heuristics (English / current default):
 
 - Long sentence: &gt; 20 words
 - Complex word: &gt; 3 syllables
