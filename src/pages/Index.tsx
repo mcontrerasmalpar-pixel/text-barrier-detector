@@ -24,7 +24,7 @@ const Index = () => {
     setEnhancement(null);
     setTimeout(() => {
       try {
-        const r = analyzeText(text);
+        const r = analyzeText(text, lang);
         setResult(r);
       } catch (err) {
         console.error('Analysis failed:', err);
@@ -32,7 +32,7 @@ const Index = () => {
         setIsAnalyzing(false);
       }
     }, 50);
-  }, [text]);
+  }, [text, lang]);
 
   const handleEnhance = useCallback(async () => {
     if (!result) return;
