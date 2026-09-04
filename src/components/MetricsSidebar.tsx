@@ -48,8 +48,13 @@ const MetricsSidebar = ({ result, lang }: MetricsSidebarProps) => {
   const levelColor = getLevelColor(lv.level);
   const nextLevel = getNextLevel(lv.level);
 
+  const easeLabel =
+    result.formulaName === 'Fernández-Huerta'
+      ? t.formulaFernandezHuerta
+      : t.formulaFlesch;
+
   const cards: CardProps[] = [
-    { label: t.fleschReading, value: result.fleschScore, subtitle: result.fleschLabel ?? '', color: scoreColor(result.fleschScore, [40, 70]) },
+    { label: easeLabel, value: result.fleschScore, subtitle: result.fleschLabel ?? '', color: scoreColor(result.fleschScore, [40, 70]) },
     { label: t.gradeLevel, value: result.gradeLevel, subtitle: t.grade, color: scoreColorInverse(result.gradeLevel, [7, 11]) },
     { label: t.avgSentenceLen, value: result.avgSentenceLength, subtitle: t.words, color: scoreColorInverse(result.avgSentenceLength, [15, 20]) },
     { label: t.passiveVoice, value: result.passiveCount, subtitle: t.instances, color: scoreColorInverse(result.passiveCount, [2, 5]) },

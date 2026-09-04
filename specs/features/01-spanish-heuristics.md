@@ -1,6 +1,6 @@
 # Feature 01 — Spanish heuristics
 
-Status: **specified** (not implemented)  
+Status: **implemented**  
 Owner: Maria Contreras  
 Related: [`../product.md`](../product.md), [`../constitution.md`](../constitution.md)
 
@@ -67,13 +67,13 @@ Ship **language-aware Spanish heuristics** for core analysis, still 100% client-
 
 Checkable before merge:
 
-- [ ] With `lang=en`, golden English fixtures match current scores within a documented tolerance (no unintended drift).
-- [ ] With `lang=es`, at least 8 fixture sentences cover: clear *ser* + participle passive, clear *se* passive/impersonal, long sentence, short clean sentence, word with accented vowels, product-doc style paragraph.
-- [ ] Spanish passive fixtures are flagged; parallel English-only regex must **not** be the sole detector for those fixtures.
-- [ ] UI exposes analysis language (or inherits UI language with override) and shows the correct formula name for `es`.
-- [ ] `node scripts/analyze.mjs --lang=es <fixture>` returns JSON including language and Spanish formula fields.
-- [ ] `product.md` moves “Strong Spanish… analysis” from out-of-scope to in-scope (shipped) and lists formula + heuristics.
-- [ ] Constitution item “Bilingual UI, not bilingual NLP (yet)” is revised in the same PR to reflect shipped Spanish heuristics and remaining limits.
+- [x] With `lang=en`, golden English fixtures match current scores within a documented tolerance (no unintended drift).
+- [x] With `lang=es`, at least 8 fixture sentences cover: clear *ser* + participle passive, clear *se* passive/impersonal, long sentence, short clean sentence, word with accented vowels, product-doc style paragraph.
+- [x] Spanish passive fixtures are flagged; parallel English-only regex must **not** be the sole detector for those fixtures.
+- [x] UI exposes analysis language (or inherits UI language with override) and shows the correct formula name for `es`.
+- [x] `node scripts/analyze.mjs --lang=es <fixture>` returns JSON including language and Spanish formula fields.
+- [x] `product.md` moves “Strong Spanish… analysis” from out-of-scope to in-scope (shipped) and lists formula + heuristics.
+- [x] Constitution item “Bilingual UI, not bilingual NLP (yet)” is revised in the same PR to reflect shipped Spanish heuristics and remaining limits.
 
 ## Implementation sketch (non-binding)
 
@@ -97,10 +97,18 @@ Hunches for the implementer to verify—not required design:
 3. Update README scoring section + product contract in the implementation PR.
 4. Consider a short “Spanish heuristics” note in the portfolio project blurb after ship.
 
-## Open questions
+## Decisions (resolved in implementation)
 
-1. Default when UI is `es` but pasted text is English (or mixed)—prefer explicit override over aggressive auto-detect for v1?
-2. Which Spanish readability formula is the product name in the gauge: Fernández-Huerta vs Szigriszt-Pazos?
-3. Should the GitHub Action gain an input `analysis_language` in the same MVP PR or a fast follow?
+1. **Default language:** Analysis language inherits the UI language (`en` | `es`). No auto-detect in v1. CLI uses `--lang=es|en` (default `en`).
+2. **Formula:** Fernández-Huerta for `lang=es`: `206.84 - (1.02 * P) - (0.60 * S)`. UI/CLI expose `formulaName: "Fernández-Huerta"`. English keeps Flesch.
+3. **GitHub Action language input:** Deferred. Action stays English-default. CLI `--lang` is available now.
 
-Resolve open questions in the implementation PR description and close them here when decided.
+## Known misses (Spanish passive)
+
+- Rare literary passives and full morphological agreement are not covered.
+- Ambiguous reflexive *se* outside product-copy 3rd-person patterns may be under- or over-flagged.
+- Some adjectives ending in *-to/-so/-cho* after *ser* can false-positive the participle heuristic.
+
+## Complex-word threshold
+
+Spanish complex word = **≥4 syllables** (same integer threshold as English `>3`). Recorded here and in `product.md`.
