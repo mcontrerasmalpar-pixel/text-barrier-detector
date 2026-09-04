@@ -35,6 +35,20 @@ Core analysis runs entirely in the browser. Claude is optional and only used whe
 
 ---
 
+## Spec-Driven Development
+
+This project is maintained with **spec-anchored** Spec-Driven Development. Intent lives under [`specs/`](./specs/) and stays current with the code.
+
+| Doc | Role |
+|-----|------|
+| [`specs/constitution.md`](./specs/constitution.md) | Non-negotiable product and engineering rules |
+| [`specs/product.md`](./specs/product.md) | Current product contract, scoring, and acceptance checks |
+| [`specs/README.md`](./specs/README.md) | How the SDD loop works here |
+
+Behavior changes (scoring, Action thresholds, UX contracts) update the relevant spec in the same PR. That keeps AI-assisted and human changes grounded in the same source of truth.
+
+---
+
 ## Scoring (honest notes)
 
 **Overall score** (same weights as the level score):
@@ -55,6 +69,8 @@ Structure             × 0.15
 | Structure | Paragraph breaks, lists, and headings |
 
 The A1–C2 labels are **CEFR-inspired composites**, not a certified language exam. Passive detection is English-oriented; Spanish UI does not yet mean Spanish-grade NLP. Treat scores as a review aid, not a compliance stamp.
+
+Full contract: [`specs/product.md`](./specs/product.md).
 
 ---
 
@@ -115,6 +131,10 @@ Useful scripts: `npm run build`, `npm test`, `npm run lint`.
 ## Layout
 
 ```text
+specs/                           # Spec-Driven Development (living source of intent)
+  constitution.md
+  product.md
+  README.md
 .github/workflows/readability-check.yml
 scripts/analyze.mjs              # Zero-dep CLI used by the Action
 src/
@@ -132,7 +152,7 @@ src/
 
 ## Roadmap
 
-Priorities that would matter in a hiring conversation:
+Priorities that would matter in a hiring conversation (each needs a feature spec under `specs/features/` before implementation):
 
 1. Stronger Spanish (and later PT/FR) heuristics—not only UI strings
 2. Keyboard and screen-reader pass on the heatmap and metrics
