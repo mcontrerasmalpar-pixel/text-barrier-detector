@@ -3,7 +3,8 @@
 In-browser readability and plain-language analysis for product docs, support copy, and public writing.
 
 **Live:** [text-barrier-detector.vercel.app](https://text-barrier-detector.vercel.app)  
-**Author:** [Maria Contreras](https://github.com/mcontrerasmalpar-pixel)
+**Author:** [Maria Contreras](https://github.com/mcontrerasmalpar-pixel)  
+**License:** [MIT](./LICENSE)
 
 ---
 
@@ -138,6 +139,12 @@ Priorities that would matter in a hiring conversation:
 3. PDF / shareable report export (`generatePDF` exists; wire and verify)
 4. Domain jargon packs (docs, legal, medical) as optional overlays
 5. Optional GitHub App for README / docs path analysis
+
+---
+
+## License
+
+[MIT](./LICENSE) © 2026 Maria Contreras
 
 ---
 
