@@ -57,19 +57,145 @@ function cleanWord(word: string, lang: AnalysisLanguage): string {
   return word.replace(wordCleanRegex(lang), '');
 }
 
+/**
+ * Common multi-syllable words that are everyday / technical for product &
+ * tech audiences. They satisfy ≥4 syllables but should not count as
+ * "readability barriers". Prepares the path for future domain jargon packs.
+ */
+const COMMON_TECHNICAL_EN = new Set(
+  [
+    'information', 'communication', 'technology', 'application', 'development',
+    'organization', 'organisational', 'organizational', 'infrastructure',
+    'configuration', 'documentation', 'implementation', 'functionality',
+    'availability', 'reliability', 'compatibility', 'integration',
+    'authentication', 'authorization', 'environment', 'performance',
+    'experience', 'interface', 'repository', 'component', 'parameter',
+    'operation', 'management', 'administration', 'security', 'analysis',
+    'evaluation', 'calculation', 'generation', 'distribution', 'collaboration',
+    'notification', 'subscription', 'accessibility', 'scalability',
+    'optimization', 'optimisation', 'visualization', 'visualisation',
+    'algorithm', 'database', 'software', 'hardware', 'network', 'protocol',
+    'framework', 'library', 'module', 'service', 'process', 'system',
+    'user', 'users', 'account', 'accounts', 'settings', 'options', 'features',
+    'product', 'products', 'version', 'versions', 'update', 'updates',
+    'error', 'errors', 'message', 'messages', 'report', 'reports', 'data',
+    'file', 'files', 'folder', 'folders', 'document', 'documents', 'page',
+    'pages', 'section', 'sections', 'chapter', 'chapters', 'article',
+    'articles', 'content', 'contents', 'text', 'texts', 'language',
+    'languages', 'example', 'examples', 'tutorial', 'tutorials', 'guide',
+    'guides', 'manual', 'manuals', 'reference', 'references', 'description',
+    'descriptions', 'summary', 'summaries', 'introduction', 'conclusion',
+    'conclusions', 'recommendation', 'recommendations', 'requirement',
+    'requirements', 'specification', 'specifications', 'limitation',
+    'limitations', 'advantage', 'advantages', 'disadvantage', 'disadvantages',
+    'benefit', 'benefits', 'challenge', 'challenges', 'solution', 'solutions',
+    'problem', 'problems', 'issue', 'issues', 'question', 'questions',
+    'answer', 'answers', 'response', 'responses', 'request', 'requests',
+    'result', 'results', 'outcome', 'outcomes', 'impact', 'impacts', 'effect',
+    'effects', 'cause', 'causes', 'reason', 'reasons', 'purpose', 'purposes',
+    'goal', 'goals', 'objective', 'objectives', 'strategy', 'strategies',
+    'method', 'methods', 'approach', 'approaches', 'technique', 'techniques',
+    'procedure', 'procedures', 'workflow', 'workflows', 'pipeline', 'pipelines',
+    'architecture', 'architectures', 'design', 'designs', 'pattern', 'patterns',
+    'model', 'models', 'structure', 'structures', 'format', 'formats',
+    'standard', 'standards', 'policy', 'policies', 'guideline', 'guidelines',
+    'practice', 'practices', 'extraordinary', 'computational', 'capabilities',
+  ].map((w) => w.toLowerCase())
+);
+
+const COMMON_TECHNICAL_ES = new Set(
+  [
+    'información', 'comunicación', 'tecnología', 'aplicación', 'desarrollo',
+    'organización', 'infraestructura', 'configuración', 'documentación',
+    'implementación', 'funcionalidad', 'disponibilidad', 'confiabilidad',
+    'compatibilidad', 'integración', 'autenticación', 'autorización',
+    'entorno', 'rendimiento', 'experiencia', 'interfaz', 'repositorio',
+    'componente', 'parámetro', 'operación', 'administración', 'seguridad',
+    'análisis', 'evaluación', 'cálculo', 'generación', 'distribución',
+    'colaboración', 'notificación', 'suscripción', 'accesibilidad',
+    'escalabilidad', 'optimización', 'visualización', 'algoritmo',
+    'software', 'hardware', 'protocolo', 'framework', 'biblioteca', 'módulo',
+    'servicio', 'proceso', 'sistema', 'usuario', 'usuarios', 'cuenta',
+    'cuentas', 'ajustes', 'opciones', 'características', 'producto',
+    'productos', 'versión', 'versiones', 'actualización', 'actualizaciones',
+    'error', 'errores', 'mensaje', 'mensajes', 'informe', 'informes',
+    'archivo', 'archivos', 'carpeta', 'carpetas', 'documento', 'documentos',
+    'página', 'páginas', 'sección', 'secciones', 'capítulo', 'capítulos',
+    'artículo', 'artículos', 'contenido', 'contenidos', 'texto', 'textos',
+    'idioma', 'idiomas', 'ejemplo', 'ejemplos', 'tutorial', 'tutoriales',
+    'guía', 'guías', 'manual', 'manuales', 'referencia', 'referencias',
+    'descripción', 'descripciones', 'resumen', 'resúmenes', 'introducción',
+    'conclusión', 'conclusiones', 'recomendación', 'recomendaciones',
+    'requisito', 'requisitos', 'especificación', 'especificaciones',
+    'limitación', 'limitaciones', 'ventaja', 'ventajas', 'desventaja',
+    'desventajas', 'beneficio', 'beneficios', 'desafío', 'desafíos',
+    'solución', 'soluciones', 'problema', 'problemas', 'pregunta',
+    'preguntas', 'respuesta', 'respuestas', 'solicitud', 'solicitudes',
+    'resultado', 'resultados', 'impacto', 'impactos', 'efecto', 'efectos',
+    'causa', 'causas', 'razón', 'razones', 'propósito', 'propósitos',
+    'objetivo', 'objetivos', 'estrategia', 'estrategias', 'método', 'métodos',
+    'enfoque', 'enfoques', 'técnica', 'técnicas', 'procedimiento',
+    'procedimientos', 'flujo', 'flujos', 'arquitectura', 'arquitecturas',
+    'diseño', 'diseños', 'patrón', 'patrones', 'modelo', 'modelos',
+    'estructura', 'estructuras', 'formato', 'formatos', 'estándar',
+    'estándares', 'política', 'políticas', 'directriz', 'directrices',
+    'práctica', 'prácticas',
+  ].map((w) => w.toLowerCase())
+);
+
+function isCommonTechnical(word: string, lang: AnalysisLanguage): boolean {
+  const lower = word.toLowerCase();
+  return lang === 'es' ? COMMON_TECHNICAL_ES.has(lower) : COMMON_TECHNICAL_EN.has(lower);
+}
+
 function findComplexWords(words: string[], lang: AnalysisLanguage): string[] {
   return words
     .map(w => cleanWord(w, lang))
-    .filter(w => w.length > 0 && countSyllables(w, lang) >= 4);
+    .filter(w => {
+      if (w.length === 0) return false;
+      if (isCommonTechnical(w, lang)) return false;
+      return countSyllables(w, lang) >= 4;
+    });
 }
 
-function computeStructureScore(text: string): number {
+/**
+ * Structure score with density awareness.
+ * Having paragraphs + list + heading alone no longer auto-scores 100.
+ * Density = relationship of structural elements to total word count.
+ */
+function computeStructureScore(text: string, totalWords: number): number {
   let score = 0;
   const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
-  if (paragraphs.length > 1) score += 40;
-  else score += 10;
-  if (/^[\s]*[-•*]\s/m.test(text) || /^[\s]*\d+[.)]\s/m.test(text)) score += 30;
-  if (/^#{1,6}\s/m.test(text) || /^[A-Z][A-Z\s]{3,}$/m.test(text)) score += 30;
+  const paraCount = Math.max(paragraphs.length, 1);
+
+  // Base for multi-paragraph layout
+  if (paraCount > 1) score += 20;
+  else score += 5;
+
+  // Density: reward sensible words-per-paragraph (≈ 40–180)
+  if (totalWords > 0) {
+    const wordsPerPara = totalWords / paraCount;
+    if (wordsPerPara >= 40 && wordsPerPara <= 180) score += 25;
+    else if (wordsPerPara < 40 && paraCount > 1) score += 15; // short but broken up
+    else if (wordsPerPara <= 300) score += 10;
+    // very long walls of text get little density credit
+  }
+
+  // Lists
+  if (/^[\s]*[-•*]\s/m.test(text) || /^[\s]*\d+[.)]\s/m.test(text)) {
+    score += 25;
+  }
+
+  // Headings (markdown or ALL-CAPS short lines)
+  if (/^#{1,6}\s/m.test(text) || /^[A-Z][A-Z\s]{3,}$/m.test(text)) {
+    score += 25;
+  }
+
+  // Soft penalty when the text is long but has almost no structure
+  if (totalWords > 120 && paraCount === 1 && score < 30) {
+    score = Math.max(0, score - 10);
+  }
+
   return Math.min(100, score);
 }
 
@@ -135,7 +261,7 @@ export function analyzeText(text: string, lang: AnalysisLanguage = 'en'): Analys
     return { text: s, wordCount: words.length, isLong, hasPassiveVoice: hasPassive, complexWords: complex, index: i };
   });
 
-  const structureScore = computeStructureScore(text);
+  const structureScore = computeStructureScore(text, totalWords);
 
   const sentenceLengthScore = Math.max(0, 100 - (sentenceAnalyses.filter(s => s.isLong).length / totalSentences) * 100);
   const passiveScore = Math.max(0, 100 - (passiveCount / totalSentences) * 100);

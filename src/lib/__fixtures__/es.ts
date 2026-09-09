@@ -48,7 +48,12 @@ export const enFixtures = {
     'We shipped the feature yesterday. The file was modified by an admin. Please review carefully.',
 } as const;
 
-/** Locked English baselines from main analyzer behavior (pre Feature 01). */
+/**
+ * English baselines after:
+ * - refined EN passive detector (irregulars + adjectival exclusions)
+ * - structure density scoring
+ * - common-technical word allow-list for complex-word heuristic
+ */
 export const enBaselines = {
   shortClean: {
     fleschScore: 100,
@@ -57,7 +62,7 @@ export const enBaselines = {
     avgSentenceLength: 6,
     passiveCount: 0,
     complexWordCount: 0,
-    structureScore: 10,
+    structureScore: 15,
     overallScore: 87,
     totalWords: 6,
     totalSentences: 1,
@@ -70,8 +75,8 @@ export const enBaselines = {
     avgSentenceLength: 7,
     passiveCount: 1,
     complexWordCount: 0,
-    structureScore: 10,
-    overallScore: 68,
+    structureScore: 15,
+    overallScore: 69,
     totalWords: 7,
     totalSentences: 1,
     totalSyllables: 9,
@@ -82,9 +87,9 @@ export const enBaselines = {
     gradeLevel: 15.9,
     avgSentenceLength: 25,
     passiveCount: 0,
-    complexWordCount: 1,
-    structureScore: 10,
-    overallScore: 39,
+    complexWordCount: 0,
+    structureScore: 15,
+    overallScore: 41,
     totalWords: 25,
     totalSentences: 1,
     totalSyllables: 46,
@@ -95,9 +100,9 @@ export const enBaselines = {
     gradeLevel: 37.7,
     avgSentenceLength: 7,
     passiveCount: 0,
-    complexWordCount: 6,
-    structureScore: 10,
-    overallScore: 37,
+    complexWordCount: 1,
+    structureScore: 15,
+    overallScore: 48,
     totalWords: 7,
     totalSentences: 1,
     totalSyllables: 30,
@@ -109,8 +114,8 @@ export const enBaselines = {
     avgSentenceLength: 5,
     passiveCount: 1,
     complexWordCount: 1,
-    structureScore: 10,
-    overallScore: 64,
+    structureScore: 15,
+    overallScore: 65,
     totalWords: 15,
     totalSentences: 3,
     totalSyllables: 26,
