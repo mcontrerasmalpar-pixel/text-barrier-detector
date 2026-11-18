@@ -62,7 +62,10 @@ const MetricsSidebar = ({ result, lang }: MetricsSidebarProps) => {
 
   return (
     <div>
-      {/* CEFR Level Banner */}
+      {/* Readability Band banner (CEFR-inspired, not a certification) */}
+      <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#999999', marginBottom: '8px' }}>
+        {t.readabilityBand}
+      </div>
       <div style={{
         background: '#ffffff',
         border: `1.5px solid ${levelColor}`,
@@ -110,6 +113,9 @@ const MetricsSidebar = ({ result, lang }: MetricsSidebarProps) => {
           </div>
           <div style={{ fontSize: '12px', color: '#888888', marginTop: '3px', lineHeight: 1.4 }}>
             {lv.audience}
+          </div>
+          <div style={{ fontSize: '10px', color: '#aaaaaa', marginTop: '3px', fontStyle: 'italic' }}>
+            {t.readabilityBandNote}
           </div>
           {nextLevel && lv.tips[0] && (
             <div style={{ fontSize: '11px', color: '#aaaaaa', marginTop: '5px', display: 'flex', alignItems: 'flex-start', gap: '4px' }}>
