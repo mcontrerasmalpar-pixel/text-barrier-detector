@@ -1,6 +1,13 @@
 import type { AnalysisResult } from '@/lib/analyzer';
 import { getLevelColor, getNextLevel } from '@/lib/levelClassifier';
-import { type Lang, translations } from '@/lib/i18n';
+import {
+  type Lang,
+  translations,
+  localizeBandAudience,
+  localizeBandLabel,
+  localizeEaseLabel,
+  localizeTip,
+} from '@/lib/i18n';
 
 interface MetricsSidebarProps {
   result: AnalysisResult;
@@ -54,10 +61,42 @@ const MetricsSidebar = ({ result, lang }: MetricsSidebarProps) => {
       : t.formulaFlesch;
 
   const cards: CardProps[] = [
-    { label: easeLabel, value: result.fleschScore, subtitle: result.fleschLabel ?? '', color: scoreColor(result.fleschScore, [40, 70]) },
-    { label: t.gradeLevel, value: result.gradeLevel, subtitle: t.grade, color: scoreColorInverse(result.gradeLevel, [7, 11]) },
-    { label: t.avgSentenceLen, value: result.avgSentenceLength, subtitle: t.words, color: scoreColorInverse(result.avgSentenceLength, [15, 20]) },
-    { label: t.passiveVoice, value: result.passiveCount, subtitle: t.instances, color: scoreColorInverse(result.passiveCount, [2, 5]) },
+    {
+      label: easeLabel,
+      value: result.fleschScore,
+      subtitle: localizeEaseLabel(result.fleschLabel ?? '', lang),
+      color: scoreColor(result.fleschScore, [40, 70]),
+    },
+    {
+      label: t.gradeLevel,
+      value: result.gradeLevel,
+      subtitle: t.grade,
+      color: scoreColorInverse(result.gradeLevel, [7, 11]),
+    },
+    {
+      label: t.avgSentenceLen,
+      value: result.avgSentenceLength,
+      subtitle: t.words,
+      color: scoreColorInverse(result.avgSentenceLength, [15, 20]),
+    },
+    {
+      label: t.passiveVoice,
+      value: result.passiveCount,
+      subtitle: t.instances,
+      color: scoreColorInverse(result.passiveCount, [2, 5]),
+    },
+    {
+      label: t.complexWords,
+      value: result.complexWordCount,
+      subtitle: t.detected,
+      color: scoreColorInverse(result.complexWordCount, [2, 6]),
+    },
+    {
+      label: t.structure,
+      value: result.structureScore,
+      subtitle: t.outOf100,
+      color: scoreColor(result.structureScore, [40, 70]),
+    },
   ];
 
   return (
@@ -71,7 +110,7 @@ const MetricsSidebar = ({ result, lang }: MetricsSidebarProps) => {
         border: `1.5px solid ${levelColor}`,
         borderRadius: '10px',
         padding: '14px 18px',
-        marginBottom: '12px',
+        marginBottom: '16px',
         display: 'flex',
         alignItems: 'center',
         gap: '14px',
@@ -97,7 +136,9 @@ const MetricsSidebar = ({ result, lang }: MetricsSidebarProps) => {
         {/* Info */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '15px', fontWeight: 600, color: '#1a1a1a' }}>{lv.label}</span>
+            <span style={{ fontSize: '15px', fontWeight: 600, color: '#1a1a1a' }}>
+              {localizeBandLabel(lv.label, lang)}
+            </span>
             <span style={{
               fontSize: '11px',
               background: `${levelColor}18`,
@@ -110,17 +151,28 @@ const MetricsSidebar = ({ result, lang }: MetricsSidebarProps) => {
             }}>
               {t.levelScore}: {lv.score}/100
             </span>
+            <span style={{
+              fontSize: '11px',
+              background: '#f4f4f2',
+              color: '#555555',
+              border: '1px solid #e5e5e2',
+              borderRadius: '20px',
+              padding: '2px 8px',
+              fontWeight: 500,
+            }}>
+              {t.overallScore}: {result.overallScore}/100
+            </span>
           </div>
-          <div style={{ fontSize: '12px', color: '#888888', marginTop: '3px', lineHeight: 1.4 }}>
-            {lv.audience}
+          <div style={{ fontSize: '12px', color: '#666666', marginTop: '4px', lineHeight: 1.4 }}>
+            {localizeBandAudience(lv.level, lv.audience, lang)}
           </div>
-          <div style={{ fontSize: '10px', color: '#aaaaaa', marginTop: '3px', fontStyle: 'italic' }}>
+          <div style={{ fontSize: '11px', color: '#888888', marginTop: '3px', fontStyle: 'italic' }}>
             {t.readabilityBandNote}
           </div>
           {nextLevel && lv.tips[0] && (
-            <div style={{ fontSize: '11px', color: '#aaaaaa', marginTop: '5px', display: 'flex', alignItems: 'flex-start', gap: '4px' }}>
+            <div style={{ fontSize: '11px', color: '#777777', marginTop: '6px', display: 'flex', alignItems: 'flex-start', gap: '4px' }}>
               <span style={{ color: levelColor, fontWeight: 700, flexShrink: 0 }}>↑ {nextLevel}:</span>
-              <span>{lv.tips[0]}</span>
+              <span>{localizeTip(lv.tips[0], lang)}</span>
             </div>
           )}
         </div>
@@ -130,7 +182,7 @@ const MetricsSidebar = ({ result, lang }: MetricsSidebarProps) => {
       <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#999999', marginBottom: '10px' }}>
         {t.metrics}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
         {cards.map((card) => (
           <MetricCard key={card.label} {...card} />
         ))}
