@@ -1,11 +1,10 @@
-import { countSyllables } from './syllables';
-import { detectPassiveVoice } from './passive';
 import { classifyLevel } from './levelClassifier';
-import { computeStructureScore } from './structure';
 import type { LevelResult } from './levelClassifier';
+import { computeStructureScore } from './structure';
+import { getLanguagePack } from './languages';
+import type { AnalysisLanguage, FormulaName, LanguagePack } from './languages';
 
-export type AnalysisLanguage = 'en' | 'es';
-export type FormulaName = 'Flesch' | 'Fernández-Huerta';
+export type { AnalysisLanguage, FormulaName, LanguagePack } from './languages';
 
 export interface SentenceAnalysis {
   text: string;
@@ -38,124 +37,25 @@ export interface AnalysisResult {
   formulaName: FormulaName;
 }
 
-const WORD_CHARS_EN = /[^a-zA-Z]/g;
-const WORD_CHARS_ES = /[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]/g;
-
-function wordCleanRegex(lang: AnalysisLanguage): RegExp {
-  return lang === 'es' ? WORD_CHARS_ES : WORD_CHARS_EN;
-}
-
 function splitSentences(text: string): string[] {
   return text.split(/(?<=[.!?])\s+/).map(s => s.trim()).filter(s => s.length > 0);
 }
 
-function getWords(text: string, lang: AnalysisLanguage): string[] {
-  const re = wordCleanRegex(lang);
-  return text.split(/\s+/).filter(w => w.replace(re, '').length > 0);
+function getWords(text: string, pack: LanguagePack): string[] {
+  return text.split(/\s+/).filter(w => w.replace(pack.wordCharsRe, '').length > 0);
 }
 
-function cleanWord(word: string, lang: AnalysisLanguage): string {
-  return word.replace(wordCleanRegex(lang), '');
+function cleanWord(word: string, pack: LanguagePack): string {
+  return word.replace(pack.wordCharsRe, '');
 }
 
-/**
- * Common multi-syllable words that are everyday / technical for product &
- * tech audiences. They satisfy ≥4 syllables but should not count as
- * "readability barriers". Prepares the path for future domain jargon packs.
- */
-const COMMON_TECHNICAL_EN = new Set(
-  [
-    'information', 'communication', 'technology', 'application', 'development',
-    'organization', 'organisational', 'organizational', 'infrastructure',
-    'configuration', 'documentation', 'implementation', 'functionality',
-    'availability', 'reliability', 'compatibility', 'integration',
-    'authentication', 'authorization', 'environment', 'performance',
-    'experience', 'interface', 'repository', 'component', 'parameter',
-    'operation', 'management', 'administration', 'security', 'analysis',
-    'evaluation', 'calculation', 'generation', 'distribution', 'collaboration',
-    'notification', 'subscription', 'accessibility', 'scalability',
-    'optimization', 'optimisation', 'visualization', 'visualisation',
-    'algorithm', 'database', 'software', 'hardware', 'network', 'protocol',
-    'framework', 'library', 'module', 'service', 'process', 'system',
-    'user', 'users', 'account', 'accounts', 'settings', 'options', 'features',
-    'product', 'products', 'version', 'versions', 'update', 'updates',
-    'error', 'errors', 'message', 'messages', 'report', 'reports', 'data',
-    'file', 'files', 'folder', 'folders', 'document', 'documents', 'page',
-    'pages', 'section', 'sections', 'chapter', 'chapters', 'article',
-    'articles', 'content', 'contents', 'text', 'texts', 'language',
-    'languages', 'example', 'examples', 'tutorial', 'tutorials', 'guide',
-    'guides', 'manual', 'manuals', 'reference', 'references', 'description',
-    'descriptions', 'summary', 'summaries', 'introduction', 'conclusion',
-    'conclusions', 'recommendation', 'recommendations', 'requirement',
-    'requirements', 'specification', 'specifications', 'limitation',
-    'limitations', 'advantage', 'advantages', 'disadvantage', 'disadvantages',
-    'benefit', 'benefits', 'challenge', 'challenges', 'solution', 'solutions',
-    'problem', 'problems', 'issue', 'issues', 'question', 'questions',
-    'answer', 'answers', 'response', 'responses', 'request', 'requests',
-    'result', 'results', 'outcome', 'outcomes', 'impact', 'impacts', 'effect',
-    'effects', 'cause', 'causes', 'reason', 'reasons', 'purpose', 'purposes',
-    'goal', 'goals', 'objective', 'objectives', 'strategy', 'strategies',
-    'method', 'methods', 'approach', 'approaches', 'technique', 'techniques',
-    'procedure', 'procedures', 'workflow', 'workflows', 'pipeline', 'pipelines',
-    'architecture', 'architectures', 'design', 'designs', 'pattern', 'patterns',
-    'model', 'models', 'structure', 'structures', 'format', 'formats',
-    'standard', 'standards', 'policy', 'policies', 'guideline', 'guidelines',
-    'practice', 'practices', 'extraordinary', 'computational', 'capabilities',
-  ].map((w) => w.toLowerCase())
-);
-
-const COMMON_TECHNICAL_ES = new Set(
-  [
-    'información', 'comunicación', 'tecnología', 'aplicación', 'desarrollo',
-    'organización', 'infraestructura', 'configuración', 'documentación',
-    'implementación', 'funcionalidad', 'disponibilidad', 'confiabilidad',
-    'compatibilidad', 'integración', 'autenticación', 'autorización',
-    'entorno', 'rendimiento', 'experiencia', 'interfaz', 'repositorio',
-    'componente', 'parámetro', 'operación', 'administración', 'seguridad',
-    'análisis', 'evaluación', 'cálculo', 'generación', 'distribución',
-    'colaboración', 'notificación', 'suscripción', 'accesibilidad',
-    'escalabilidad', 'optimización', 'visualización', 'algoritmo',
-    'software', 'hardware', 'protocolo', 'framework', 'biblioteca', 'módulo',
-    'servicio', 'proceso', 'sistema', 'usuario', 'usuarios', 'cuenta',
-    'cuentas', 'ajustes', 'opciones', 'características', 'producto',
-    'productos', 'versión', 'versiones', 'actualización', 'actualizaciones',
-    'error', 'errores', 'mensaje', 'mensajes', 'informe', 'informes',
-    'archivo', 'archivos', 'carpeta', 'carpetas', 'documento', 'documentos',
-    'página', 'páginas', 'sección', 'secciones', 'capítulo', 'capítulos',
-    'artículo', 'artículos', 'contenido', 'contenidos', 'texto', 'textos',
-    'idioma', 'idiomas', 'ejemplo', 'ejemplos', 'tutorial', 'tutoriales',
-    'guía', 'guías', 'manual', 'manuales', 'referencia', 'referencias',
-    'descripción', 'descripciones', 'resumen', 'resúmenes', 'introducción',
-    'conclusión', 'conclusiones', 'recomendación', 'recomendaciones',
-    'requisito', 'requisitos', 'especificación', 'especificaciones',
-    'limitación', 'limitaciones', 'ventaja', 'ventajas', 'desventaja',
-    'desventajas', 'beneficio', 'beneficios', 'desafío', 'desafíos',
-    'solución', 'soluciones', 'problema', 'problemas', 'pregunta',
-    'preguntas', 'respuesta', 'respuestas', 'solicitud', 'solicitudes',
-    'resultado', 'resultados', 'impacto', 'impactos', 'efecto', 'efectos',
-    'causa', 'causas', 'razón', 'razones', 'propósito', 'propósitos',
-    'objetivo', 'objetivos', 'estrategia', 'estrategias', 'método', 'métodos',
-    'enfoque', 'enfoques', 'técnica', 'técnicas', 'procedimiento',
-    'procedimientos', 'flujo', 'flujos', 'arquitectura', 'arquitecturas',
-    'diseño', 'diseños', 'patrón', 'patrones', 'modelo', 'modelos',
-    'estructura', 'estructuras', 'formato', 'formatos', 'estándar',
-    'estándares', 'política', 'políticas', 'directriz', 'directrices',
-    'práctica', 'prácticas',
-  ].map((w) => w.toLowerCase())
-);
-
-function isCommonTechnical(word: string, lang: AnalysisLanguage): boolean {
-  const lower = word.toLowerCase();
-  return lang === 'es' ? COMMON_TECHNICAL_ES.has(lower) : COMMON_TECHNICAL_EN.has(lower);
-}
-
-function findComplexWords(words: string[], lang: AnalysisLanguage): string[] {
+function findComplexWords(words: string[], pack: LanguagePack): string[] {
   return words
-    .map(w => cleanWord(w, lang))
+    .map(w => cleanWord(w, pack))
     .filter(w => {
       if (w.length === 0) return false;
-      if (isCommonTechnical(w, lang)) return false;
-      return countSyllables(w, lang) >= 4;
+      if (pack.isCommonTechnical(w)) return false;
+      return pack.countSyllables(w) >= pack.complexWordMinSyllables;
     });
 }
 
@@ -167,36 +67,20 @@ function getEaseLabel(score: number): string {
   return 'Very difficult';
 }
 
-/** Flesch Reading Ease (English). */
-function fleschReadingEase(words: number, sentences: number, syllables: number): number {
-  return 206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / words);
-}
-
-/** Fernández-Huerta (Spanish): 206.84 - 1.02*P - 0.60*S */
-function fernandezHuerta(words: number, sentences: number, syllables: number): number {
-  const P = words / sentences;
-  const S = syllables / words;
-  return 206.84 - 1.02 * P - 0.60 * S;
-}
-
 export function analyzeText(text: string, lang: AnalysisLanguage = 'en'): AnalysisResult {
+  const pack = getLanguagePack(lang);
   const sentences = splitSentences(text);
-  const allWords = getWords(text, lang);
+  const allWords = getWords(text, pack);
   const totalWords = allWords.length;
   const totalSentences = Math.max(sentences.length, 1);
   const totalSyllables = allWords.reduce(
-    (sum, w) => sum + countSyllables(cleanWord(w, lang), lang),
+    (sum, w) => sum + pack.countSyllables(cleanWord(w, pack)),
     0
   );
   const avgSentenceLength = totalWords / totalSentences;
 
-  const formulaName: FormulaName = lang === 'es' ? 'Fernández-Huerta' : 'Flesch';
   const rawEase =
-    totalWords === 0
-      ? 0
-      : lang === 'es'
-        ? fernandezHuerta(totalWords, totalSentences, totalSyllables)
-        : fleschReadingEase(totalWords, totalSentences, totalSyllables);
+    totalWords === 0 ? 0 : pack.readingEase(totalWords, totalSentences, totalSyllables);
 
   const fleschScore = Math.max(0, Math.min(100, rawEase));
 
@@ -212,10 +96,10 @@ export function analyzeText(text: string, lang: AnalysisLanguage = 'en'): Analys
   let complexWordCount = 0;
 
   const sentenceAnalyses: SentenceAnalysis[] = sentences.map((s, i) => {
-    const words = getWords(s, lang);
+    const words = getWords(s, pack);
     const isLong = words.length > 20;
-    const hasPassive = detectPassiveVoice(s, lang);
-    const complex = findComplexWords(words, lang);
+    const hasPassive = pack.isPassive(s);
+    const complex = findComplexWords(words, pack);
     if (hasPassive) passiveCount++;
     complexWordCount += complex.length;
     return { text: s, wordCount: words.length, isLong, hasPassiveVoice: hasPassive, complexWords: complex, index: i };
@@ -253,7 +137,7 @@ export function analyzeText(text: string, lang: AnalysisLanguage = 'en'): Analys
     totalSyllables,
     suggestions: suggestions.slice(0, 3),
     language: lang,
-    formulaName,
+    formulaName: pack.formulaName,
   };
 
   return {
