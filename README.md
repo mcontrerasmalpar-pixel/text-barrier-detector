@@ -24,7 +24,7 @@ Built for people who write or review English product copy (docs, onboarding, ema
 |--------|--------|
 | Ease score | Flesch (en) or Fernández-Huerta (es), 0–100 with a plain label |
 | Flesch–Kincaid grade | Approximate U.S. grade level (syllables follow analysis language) |
-| CEFR-style level | A1–C2 band with audience note and tips toward the next band |
+| Readability Band (A1–C2) | CEFR-inspired band (not a certification) with audience note and tips toward the next band |
 | Sentence heatmap | Long sentences, passive voice, and complex words highlighted |
 | Structure score | Rewards paragraphs, lists, and headings |
 | Overall score | Weighted composite of the metrics above |
@@ -71,7 +71,7 @@ Structure                                 × 0.15
 | Ease (es) | Fernández-Huerta |
 | Structure | Paragraph breaks, lists, and headings |
 
-The A1–C2 labels are **CEFR-inspired composites**, not a certified language exam. Spanish heuristics are approximate client-side rules—not certified NLP. Treat scores as a review aid, not a compliance stamp. Spec: [`specs/features/01-spanish-heuristics.md`](./specs/features/01-spanish-heuristics.md).
+The **Readability Band (A1–C2)** is **CEFR-inspired**: it borrows the A1–C2 codes for familiarity, but it is a heuristic composite of the metrics above, **not a CEFR assessment or certification**. Spanish heuristics are approximate client-side rules—not certified NLP. Treat scores as a review aid, not a compliance stamp. Spec: [`specs/features/01-spanish-heuristics.md`](./specs/features/01-spanish-heuristics.md).
 
 Full contract: [`specs/product.md`](./specs/product.md).
 
@@ -88,7 +88,7 @@ Example comment shape:
 ```text
 Text Barrier Detector — Readability Report
 
-Text Level: B2 — Upper Intermediate
+Readability Band (A1–C2): B2 — Moderately Complex (CEFR-inspired, not a certification)
 Recommended audience: Educated adults, professionals.
 
 | Metric              | Value           |
@@ -145,7 +145,7 @@ src/
   components/                    # Input, heatmap, metrics, suggestions
   lib/
     analyzer.ts                  # Core readability engine (en|es)
-    levelClassifier.ts           # CEFR-style bands
+    levelClassifier.ts           # Readability Band (A1–C2), CEFR-inspired
     claudeEnhancer.ts            # Optional rewrites
     i18n.ts                      # EN / ES strings
     syllables.ts                 # English + Spanish syllable heuristics

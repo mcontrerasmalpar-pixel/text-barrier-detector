@@ -1,24 +1,35 @@
 /**
  * levelClassifier.ts
- * CEFR-inspired text level classifier (A1 → C2).
+ * Readability Band (A1–C2): a CEFR-inspired text classifier.
+ * The A1–C2 codes borrow the CEFR scale for familiarity only. This is a
+ * heuristic readability composite, NOT a CEFR assessment or certification.
  * Derived entirely from the existing AnalysisResult metrics — no extra API calls.
  */
 
 import type { AnalysisResult } from './analyzer';
 
+/** Display name of the band system, used by UI, README and specs. */
+export const READABILITY_BAND_NAME = 'Readability Band (A1–C2)';
+
+/** Standard disclaimer to show wherever a band is presented. */
+export const READABILITY_BAND_DISCLAIMER =
+  'CEFR-inspired readability heuristic, not a CEFR assessment or certification.';
+
 export type TextLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 
 export interface LevelResult {
-  /** CEFR-style level code */
+  /** Band code (A1–C2). CEFR-inspired, not a certification. */
   level: TextLevel;
   /** Human-readable label */
   label: string;
-  /** Short description of what this level means for readers */
+  /** Short description of what this band means for readers */
   description: string;
   /** Recommended audience */
   audience: string;
-  /** 0-100 numeric score used to derive the level */
+  /** 0-100 numeric score used to derive the band */
   score: number;
+  /** Always states that the band is CEFR-inspired and not a certification */
+  disclaimer: string;
   /** Individual dimension scores used in classification */
   dimensions: LevelDimensions;
   /** Actionable tips to move the text to the next level up */
@@ -42,37 +53,37 @@ export interface LevelDimensions {
 
 const LEVEL_MAP: Record<TextLevel, { label: string; description: string; audience: string; minScore: number }> = {
   A1: {
-    label: 'Beginner',
+    label: 'Very Easy',
     description: 'Very simple text. Short sentences, basic vocabulary, clear structure.',
     audience: 'Children, early learners, non-native speakers at basic level.',
     minScore: 85,
   },
   A2: {
-    label: 'Elementary',
+    label: 'Easy',
     description: 'Simple text. Common everyday vocabulary, mostly short sentences.',
     audience: 'General public, non-native speakers, readers with limited education.',
     minScore: 70,
   },
   B1: {
-    label: 'Intermediate',
+    label: 'Standard',
     description: 'Accessible text. Mix of simple and moderate complexity. Some technical terms.',
     audience: 'Most adults, general audience, plain-language standard.',
     minScore: 55,
   },
   B2: {
-    label: 'Upper Intermediate',
+    label: 'Moderately Complex',
     description: 'Moderately complex. Longer sentences, some passive voice, occasional jargon.',
     audience: 'Educated adults, professionals in related fields.',
     minScore: 40,
   },
   C1: {
-    label: 'Advanced',
+    label: 'Complex',
     description: 'Complex text. Dense vocabulary, frequent passive voice, long sentences.',
     audience: 'Specialists, academics, highly educated professionals.',
     minScore: 25,
   },
   C2: {
-    label: 'Mastery / Expert',
+    label: 'Very Complex',
     description: 'Very complex text. Academic or technical writing. High cognitive load.',
     audience: 'Domain experts, researchers, academic readers only.',
     minScore: 0,
@@ -105,7 +116,7 @@ function normalizeComplexity(complexCount: number, totalWords: number): number {
 function generateTips(level: TextLevel, dims: LevelDimensions): string[] {
   const tips: string[] = [];
 
-  if (level === 'A1') return ['Your text is already at the most accessible level. Great work!'];
+  if (level === 'A1') return ['Your text is already in the most accessible band. Great work!'];
 
   if (dims.sentenceLengthScore < 70) {
     tips.push('Break long sentences into two shorter ones (target: under 15 words each).');
@@ -161,6 +172,7 @@ export function classifyLevel(analysis: AnalysisResult): LevelResult {
     description: meta.description,
     audience: meta.audience,
     score,
+    disclaimer: READABILITY_BAND_DISCLAIMER,
     dimensions: dims,
     tips,
   };

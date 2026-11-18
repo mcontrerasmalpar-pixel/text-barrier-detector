@@ -43,7 +43,8 @@ export const translations = {
     legendComplex: 'Complex words',
     legendPassive: 'Passive voice',
     legendClean: 'Clean sentence',
-    textLevel: 'Text Level',
+    readabilityBand: 'Readability Band (A1–C2)',
+    readabilityBandNote: 'CEFR-inspired heuristic, not a certification.',
     levelScore: 'Score',
   },
   es: {
@@ -90,7 +91,8 @@ export const translations = {
     legendComplex: 'Palabras complejas',
     legendPassive: 'Voz pasiva',
     legendClean: 'Oración limpia',
-    textLevel: 'Nivel de Texto',
+    readabilityBand: 'Banda de legibilidad (A1–C2)',
+    readabilityBandNote: 'Heurística inspirada en el MCER, no es una certificación.',
     levelScore: 'Puntuación',
   },
 } as const;

@@ -4,7 +4,7 @@
  * Used by the GitHub Action to analyze text files.
  *
  * Usage: node scripts/analyze.mjs [--lang=en|es] <path-to-text-file>
- * Output: JSON with readability metrics + CEFR level to stdout
+ * Output: JSON with readability metrics + Readability Band (A1-C2, CEFR-inspired, not a certification) to stdout
  */
 
 import { readFileSync } from 'fs';
@@ -216,12 +216,12 @@ function isCommonTechnical(word, lang) {
 
 // ── Level classifier ────────────────────────────────────────────────────────
 const LEVEL_MAP = {
-  A1: { label: 'Beginner',            description: 'Very simple text. Short sentences, basic vocabulary.',          audience: 'Children, early learners, non-native speakers.',             minScore: 85 },
-  A2: { label: 'Elementary',          description: 'Simple text. Common everyday vocabulary.',                       audience: 'General public, non-native speakers.',                      minScore: 70 },
-  B1: { label: 'Intermediate',        description: 'Accessible text. Mix of simple and moderate complexity.',        audience: 'Most adults, general audience.',                            minScore: 55 },
-  B2: { label: 'Upper Intermediate',  description: 'Moderately complex. Longer sentences, some passive voice.',     audience: 'Educated adults, professionals.',                           minScore: 40 },
-  C1: { label: 'Advanced',            description: 'Complex text. Dense vocabulary, frequent passive voice.',        audience: 'Specialists, academics.',                                   minScore: 25 },
-  C2: { label: 'Mastery / Expert',    description: 'Very complex. Academic or technical writing.',                  audience: 'Domain experts, researchers.',                              minScore: 0  },
+  A1: { label: 'Very Easy',           description: 'Very simple text. Short sentences, basic vocabulary.',          audience: 'Children, early learners, non-native speakers.',             minScore: 85 },
+  A2: { label: 'Easy',                description: 'Simple text. Common everyday vocabulary.',                       audience: 'General public, non-native speakers.',                      minScore: 70 },
+  B1: { label: 'Standard',            description: 'Accessible text. Mix of simple and moderate complexity.',        audience: 'Most adults, general audience.',                            minScore: 55 },
+  B2: { label: 'Moderately Complex',  description: 'Moderately complex. Longer sentences, some passive voice.',     audience: 'Educated adults, professionals.',                           minScore: 40 },
+  C1: { label: 'Complex',             description: 'Complex text. Dense vocabulary, frequent passive voice.',        audience: 'Specialists, academics.',                                   minScore: 25 },
+  C2: { label: 'Very Complex',        description: 'Very complex. Academic or technical writing.',                  audience: 'Domain experts, researchers.',                              minScore: 0  },
 };
 
 function normalizeFleschScore(f)    { return Math.min(100, Math.max(0, f)); }

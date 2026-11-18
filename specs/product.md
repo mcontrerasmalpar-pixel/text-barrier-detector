@@ -24,7 +24,7 @@ Product and docs teams ship unclear English copy. Readers bounce or open support
 |------------|----------|
 | Flesch Reading Ease | 0–100 with plain label |
 | Flesch–Kincaid grade | Approximate U.S. grade level |
-| CEFR-style level | A1–C2 band + audience + tips |
+| Readability Band (A1–C2) | CEFR-inspired band + audience + tips; always labelled "CEFR-inspired, not a certification" |
 | Sentence heatmap | Long / passive / complex / clean |
 | Structure score | Paragraphs, lists, headings |
 | Overall score | Weighted composite (see Scoring) |
@@ -41,7 +41,7 @@ Product and docs teams ship unclear English copy. Readers bounce or open support
 
 ## Out of scope (current)
 
-- Certified CEFR assessment
+- Certified CEFR assessment (the Readability Band is CEFR-inspired only)
 - Perfect multilingual NLP (Spanish heuristics are approximate)
 - Portuguese / French linguistic analysis (after Spanish)
 - Required accounts or paid gate for core Analyze
@@ -83,4 +83,4 @@ Action fail threshold: overall score **&lt; 30/100**.
 
 ## Non-goals disguised as features
 
-Do not ship “multilingual analysis” that only translates the chrome (Spanish heuristics must be real detectors + formula). Do not rename CEFR-inspired bands as official CEFR. Do not move core scoring to a server without a new product decision.
+Do not ship “multilingual analysis” that only translates the chrome (Spanish heuristics must be real detectors + formula). Do not present the Readability Band (A1–C2) as an official CEFR level or certification; keep the "CEFR-inspired, not a certification" note wherever a band is shown. Do not move core scoring to a server without a new product decision.

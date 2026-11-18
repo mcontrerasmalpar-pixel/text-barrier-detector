@@ -29,7 +29,7 @@ export interface AnalysisResult {
   totalSentences: number;
   totalSyllables: number;
   suggestions: string[];
-  /** CEFR-style level classification (A1–C2) */
+  /** Readability Band (A1–C2): CEFR-inspired, not a certification */
   level: LevelResult;
   /** Analysis language used for heuristics */
   language: AnalysisLanguage;
