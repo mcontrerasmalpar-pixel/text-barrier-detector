@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import * as api from '../../index';
+import * as core from '@maky/text-barrier-core';
 
-describe('package entry point (src/index.ts)', () => {
-  it('exports the documented public API', () => {
+describe('@maky/text-barrier-core package API', () => {
+  it('exports the typed core API (analyze, findBarriers, validators, language packs)', () => {
     for (const name of [
+      'analyze',
       'analyzeText',
+      'findBarriers',
       'AnalysisError',
       'MAX_INPUT_CHARS',
       'validateInput',
@@ -14,30 +16,26 @@ describe('package entry point (src/index.ts)', () => {
       'READABILITY_BAND_NAME',
       'READABILITY_BAND_DISCLAIMER',
     ]) {
-      expect(api, `missing export ${name}`).toHaveProperty(name);
+      expect(core, `missing export ${name}`).toHaveProperty(name);
     }
   });
 
-  it('does not leak UI or React modules', () => {
-    expect(Object.keys(api).sort()).toEqual(
-      [
-        'AnalysisError',
-        'MAX_INPUT_CHARS',
-        'READABILITY_BAND_DISCLAIMER',
-        'READABILITY_BAND_NAME',
-        'SUPPORTED_LANGUAGES',
-        'analyzeText',
-        'getLanguagePack',
-        'isSupportedLanguage',
-        'validateInput',
-      ].sort()
-    );
+  it('analyze(text, { lang }) works for English and Spanish', () => {
+    const en = core.analyze('The report was written by the team. She is turned on.', { lang: 'en' });
+    expect(en.language).toBe('en');
+    expect(en.formulaName).toBe('Flesch');
+    expect(en.passiveCount).toBe(1);
+
+    const es = core.analyze('El informe fue escrito por el equipo.', { lang: 'es' });
+    expect(es.language).toBe('es');
+    expect(es.formulaName).toBe('Fernández-Huerta');
+    expect(es.passiveCount).toBe(1);
+    expect(es.level.disclaimer).toBe(core.READABILITY_BAND_DISCLAIMER);
   });
 
-  it('end-to-end: analyzeText through the public entry', () => {
-    const r = api.analyzeText('El informe fue escrito por el equipo.', 'es');
-    expect(r.language).toBe('es');
-    expect(r.passiveCount).toBe(1);
-    expect(r.level.disclaimer).toBe(api.READABILITY_BAND_DISCLAIMER);
+  it('findBarriers(text, { lang }) is callable and validates input', () => {
+    const issues = core.findBarriers('The cat sat on the mat.', { lang: 'en' });
+    expect(Array.isArray(issues)).toBe(true);
+    expect(() => core.findBarriers('', { lang: 'en' })).toThrow(core.AnalysisError);
   });
 });

@@ -1,0 +1,36 @@
+{
+  "name": "@maky/text-barrier-core",
+  "version": "0.1.0",
+  "description": "Deterministic readability and plain-language barrier detector for English and Spanish text (Flesch, Fernández-Huerta, passive voice, complex words, structure, Readability Band A1–C2). Zero dependencies.",
+  "license": "MIT",
+  "author": "Maria Contreras",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mcontrerasmalpar-pixel/text-barrier-detector.git",
+    "directory": "packages/core"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  }
+}

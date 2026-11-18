@@ -1,4 +1,4 @@
-import type { SentenceAnalysis } from '@/lib/analyzer';
+import type { SentenceAnalysis } from '@maky/text-barrier-core';
 import { type Lang, type Translation, translations } from '@/lib/i18n';
 
 interface AnnotatedTextProps {

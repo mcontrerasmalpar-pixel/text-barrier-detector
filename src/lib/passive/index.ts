@@ -1,10 +1,6 @@
-import { detectEnglishPassive } from './en';
-import { detectSpanishPassive } from './es';
-
-export type PassiveLanguage = 'en' | 'es';
-
-export function detectPassiveVoice(sentence: string, lang: PassiveLanguage = 'en'): boolean {
-  return lang === 'es' ? detectSpanishPassive(sentence) : detectEnglishPassive(sentence);
-}
-
-export { detectEnglishPassive, detectSpanishPassive };
+export {
+  detectEnglishPassive,
+  detectPassiveVoice,
+  detectSpanishPassive,
+} from '@maky/text-barrier-core';
+export type { PassiveLanguage } from '@maky/text-barrier-core';

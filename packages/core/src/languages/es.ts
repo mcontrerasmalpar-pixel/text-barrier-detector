@@ -1,6 +1,6 @@
-import { countSpanishSyllables } from '../syllables';
-import { detectSpanishPassive } from '../passive/es';
-import type { LanguagePack } from './types';
+import { countSpanishSyllables } from '../syllables.js';
+import { detectSpanishPassive } from '../passive/es.js';
+import type { LanguagePack } from './types.js';
 
 /** Common multi-syllable Spanish product/tech words that are not barriers. */
 const COMMON_TECHNICAL = new Set(
