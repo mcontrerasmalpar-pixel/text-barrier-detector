@@ -12,7 +12,7 @@ Rules that do not bend without an explicit product decision.
 
 ## Engineering
 
-1. TypeScript for app code; keep `scripts/analyze.mjs` zero-dependency so the GitHub Action stays portable.
+1. TypeScript for app code. The TypeScript analyzer (`src/lib/analyzer.ts`, exported via `src/index.ts`) is the **single source of truth**: the UI, `scripts/analyze.mjs` (a thin CLI wrapper over `dist-lib/`) and any MCP server must reuse it, never re-implement it. The published package has zero runtime dependencies.
 2. Prefer small, reviewable PRs that include spec updates when behavior changes.
 3. Tests should cover scoring and level classification regressions when those modules change.
 4. Accessibility of the analyzer UI matters as much as the readability of the text under analysis.
