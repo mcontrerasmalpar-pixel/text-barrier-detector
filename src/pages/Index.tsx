@@ -2,9 +2,7 @@ import { useState, useCallback } from 'react';
 import TextInput from '@/components/TextInput';
 import AnnotatedText from '@/components/AnnotatedText';
 import MetricsSidebar from '@/components/MetricsSidebar';
-import SuggestionCard from '@/components/SuggestionCard';
 import { analyzeText, AnalysisError, type AnalysisResult } from '@/lib/analyzer';
-import { enhanceWithClaude, type ClaudeEnhancement } from '@/lib/claudeEnhancer';
 import { generatePDF } from '@/lib/generatePDF';
 import { type Lang, localizeSuggestion, translations } from '@/lib/i18n';
 
@@ -13,8 +11,6 @@ const Index = () => {
   const [lang, setLang] = useState<Lang>('en');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [enhancement, setEnhancement] = useState<ClaudeEnhancement | null>(null);
-  const [isEnhancing, setIsEnhancing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const t = translations[lang];
@@ -22,7 +18,6 @@ const Index = () => {
   const runAnalysis = useCallback((inputText: string, targetLang: Lang) => {
     if (!inputText.trim()) return;
     setIsAnalyzing(true);
-    setEnhancement(null);
     setError(null);
     setTimeout(() => {
       try {
@@ -61,19 +56,6 @@ const Index = () => {
     },
     [text, result, runAnalysis]
   );
-
-  const handleEnhance = useCallback(async () => {
-    if (!result) return;
-    setIsEnhancing(true);
-    try {
-      const e = await enhanceWithClaude(text, result);
-      setEnhancement(e);
-    } catch (err) {
-      console.error('Claude enhancement failed:', err);
-    } finally {
-      setIsEnhancing(false);
-    }
-  }, [result, text]);
 
   return (
     <div style={{
@@ -177,16 +159,9 @@ const Index = () => {
               </div>
             )}
 
-            <SuggestionCard
-              enhancement={enhancement}
-              isEnhancing={isEnhancing}
-              onEnhance={handleEnhance}
-              lang={lang}
-            />
-
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <button
-                onClick={() => generatePDF(result, enhancement)}
+                onClick={() => generatePDF(result, null)}
                 style={{ fontSize: '12px', color: '#666666', border: '1px solid #e8e8e5', borderRadius: '6px', padding: '6px 14px', background: '#ffffff', cursor: 'pointer' }}
               >
                 {t.downloadReport}
