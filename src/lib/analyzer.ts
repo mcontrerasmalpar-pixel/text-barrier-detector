@@ -1,6 +1,7 @@
 import { countSyllables } from './syllables';
 import { detectPassiveVoice } from './passive';
 import { classifyLevel } from './levelClassifier';
+import { computeStructureScore } from './structure';
 import type { LevelResult } from './levelClassifier';
 
 export type AnalysisLanguage = 'en' | 'es';
@@ -156,47 +157,6 @@ function findComplexWords(words: string[], lang: AnalysisLanguage): string[] {
       if (isCommonTechnical(w, lang)) return false;
       return countSyllables(w, lang) >= 4;
     });
-}
-
-/**
- * Structure score with density awareness.
- * Having paragraphs + list + heading alone no longer auto-scores 100.
- * Density = relationship of structural elements to total word count.
- */
-function computeStructureScore(text: string, totalWords: number): number {
-  let score = 0;
-  const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
-  const paraCount = Math.max(paragraphs.length, 1);
-
-  // Base for multi-paragraph layout
-  if (paraCount > 1) score += 20;
-  else score += 5;
-
-  // Density: reward sensible words-per-paragraph (≈ 40–180)
-  if (totalWords > 0) {
-    const wordsPerPara = totalWords / paraCount;
-    if (wordsPerPara >= 40 && wordsPerPara <= 180) score += 25;
-    else if (wordsPerPara < 40 && paraCount > 1) score += 15; // short but broken up
-    else if (wordsPerPara <= 300) score += 10;
-    // very long walls of text get little density credit
-  }
-
-  // Lists
-  if (/^[\s]*[-•*]\s/m.test(text) || /^[\s]*\d+[.)]\s/m.test(text)) {
-    score += 25;
-  }
-
-  // Headings (markdown or ALL-CAPS short lines)
-  if (/^#{1,6}\s/m.test(text) || /^[A-Z][A-Z\s]{3,}$/m.test(text)) {
-    score += 25;
-  }
-
-  // Soft penalty when the text is long but has almost no structure
-  if (totalWords > 120 && paraCount === 1 && score < 30) {
-    score = Math.max(0, score - 10);
-  }
-
-  return Math.min(100, score);
 }
 
 function getEaseLabel(score: number): string {
