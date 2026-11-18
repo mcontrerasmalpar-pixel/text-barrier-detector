@@ -24,7 +24,9 @@ Product and docs teams ship unclear English and Spanish copy. Readers bounce or 
 
 | Capability | Contract |
 |------------|----------|
-| Package export (`src/index.ts` → `dist-lib/`) | Dual ESM (`dist-lib/index.js`) + CJS (`dist-lib/index.cjs`) + `.d.ts` types; zero runtime dependencies; single source of truth |
+| Core package (`@maky/text-barrier-core` in `packages/core`) | Pure TypeScript ESM + `.d.ts` declarations (`dist/`); exports `analyze(text, { lang })`, `analyzeText(text, lang)`, and `findBarriers(text, { lang })`; zero runtime dependencies, no React/DOM/network code; consumed directly by the React UI, CLI, and MCP server |
+| Barrier locator (`findBarriers`) | Deterministic list of `BarrierIssue` items (`passive \| long_sentence \| complex_word`) with `start`/`end` character offsets, `sentenceIndex`, `reason`, `lang`, and `text` |
+| MCP server (`@maky/text-barrier-mcp` in `packages/mcp`) | Official `@modelcontextprotocol/sdk` stdio server (`npx -y @maky/text-barrier-mcp`); exposes `analyze_text(text, lang?)`, `find_barriers(text, lang?)`, and `check_file(path, lang?)` (`.md`/`.txt`); Zod schemas, size limits, no user text logging, no network calls, no rewrite tool (host LLM rewrites using the issues) |
 | Language packs (`LanguagePack`) | `en` (Flesch) and `es` (Fernández-Huerta) behind a unified `LanguagePack` interface (`src/lib/languages/`). Only `en` and `es` are shipped |
 | Ease score | 0–100 with plain label (`Flesch` for `en`, `Fernández-Huerta` for `es`) |
 | Flesch–Kincaid grade | Approximate grade level (`>= 0`) |

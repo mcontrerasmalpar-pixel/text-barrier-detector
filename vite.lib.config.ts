@@ -1,10 +1,13 @@
 import { defineConfig } from "vite";
+import path from "path";
 
-// Library build for the npm package (core analyzer only: no React, no DOM).
-// Output: dist-lib/index.js (ESM), dist-lib/index.cjs (CJS). Types come from
-// `tsc -p tsconfig.lib.json` (see the "build:lib" script).
 export default defineConfig({
   publicDir: false,
+  resolve: {
+    alias: {
+      "@maky/text-barrier-core": path.resolve(__dirname, "./packages/core/src/index.ts"),
+    },
+  },
   build: {
     outDir: "dist-lib",
     emptyOutDir: true,

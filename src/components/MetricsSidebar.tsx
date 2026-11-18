@@ -1,5 +1,5 @@
-import type { AnalysisResult } from '@/lib/analyzer';
-import { getLevelColor, getNextLevel } from '@/lib/levelClassifier';
+import type { AnalysisResult } from '@maky/text-barrier-core';
+import { getLevelColor, getNextLevel } from '@maky/text-barrier-core';
 import {
   type Lang,
   translations,

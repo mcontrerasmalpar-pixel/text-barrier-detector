@@ -14,7 +14,7 @@
  */
 
 import { readFileSync } from 'node:fs';
-import { analyzeText, AnalysisError } from '../dist-lib/index.js';
+import { analyzeText, AnalysisError } from '../packages/core/dist/index.js';
 
 function fail(code, message, exitCode = 1, details = {}) {
   console.error(JSON.stringify({ error: { code, message, details } }));

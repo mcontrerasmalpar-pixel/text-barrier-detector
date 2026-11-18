@@ -19,6 +19,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@maky/text-barrier-core": [
+        "./packages/core/src/index.ts"
       ]
     },
     "skipLibCheck": true,

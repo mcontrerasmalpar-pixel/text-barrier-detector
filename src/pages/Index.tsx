@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import TextInput from '@/components/TextInput';
 import AnnotatedText from '@/components/AnnotatedText';
 import MetricsSidebar from '@/components/MetricsSidebar';
-import { analyzeText, AnalysisError, type AnalysisResult } from '@/lib/analyzer';
+import { analyze, AnalysisError, type AnalysisResult } from '@maky/text-barrier-core';
 import { generatePDF } from '@/lib/generatePDF';
 import { type Lang, localizeSuggestion, translations } from '@/lib/i18n';
 
@@ -21,7 +21,7 @@ const Index = () => {
     setError(null);
     setTimeout(() => {
       try {
-        const r = analyzeText(inputText, targetLang);
+        const r = analyze(inputText, { lang: targetLang });
         setResult(r);
       } catch (err) {
         if (err instanceof AnalysisError) {

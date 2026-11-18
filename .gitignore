@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 
 dist-lib
+
+packages/*/dist
+
+test-results
+playwright-report

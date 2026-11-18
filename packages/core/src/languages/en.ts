@@ -1,6 +1,6 @@
-import { countEnglishSyllables } from '../syllables';
-import { detectEnglishPassive } from '../passive/en';
-import type { LanguagePack } from './types';
+import { countEnglishSyllables } from '../syllables.js';
+import { detectEnglishPassive } from '../passive/en.js';
+import type { LanguagePack } from './types.js';
 
 /**
  * Common multi-syllable words that are everyday / technical for product and
