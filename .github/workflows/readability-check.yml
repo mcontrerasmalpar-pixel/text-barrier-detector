@@ -27,6 +27,11 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install dependencies and build the analyzer package
+        run: |
+          npm ci
+          npm run build:lib
+
       - name: Analyze PR body readability
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7

@@ -2,6 +2,9 @@ import { classifyLevel } from './levelClassifier';
 import type { LevelResult } from './levelClassifier';
 import { computeStructureScore } from './structure';
 import { getLanguagePack } from './languages';
+import { validateInput } from './validation';
+export { AnalysisError, MAX_INPUT_CHARS } from './validation';
+export type { AnalysisErrorCode } from './validation';
 import type { AnalysisLanguage, FormulaName, LanguagePack } from './languages';
 
 export type { AnalysisLanguage, FormulaName, LanguagePack } from './languages';
@@ -67,7 +70,13 @@ function getEaseLabel(score: number): string {
   return 'Very difficult';
 }
 
+/**
+ * Analyze text readability. Throws `AnalysisError` (localized message) when the
+ * input is not a string, is empty/whitespace-only, exceeds MAX_INPUT_CHARS, or
+ * when `lang` is not supported.
+ */
 export function analyzeText(text: string, lang: AnalysisLanguage = 'en'): AnalysisResult {
+  validateInput(text, lang);
   const pack = getLanguagePack(lang);
   // Compose combining marks so "o" + U+0301 and "ó" are analyzed identically.
   text = text.normalize('NFC');

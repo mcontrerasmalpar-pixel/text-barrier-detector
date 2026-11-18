@@ -1,5 +1,5 @@
 import type { SentenceAnalysis } from '@/lib/analyzer';
-import { type Lang, translations } from '@/lib/i18n';
+import { type Lang, type Translation, translations } from '@/lib/i18n';
 
 interface AnnotatedTextProps {
   sentences: SentenceAnalysis[];
@@ -28,7 +28,7 @@ const PILL: Record<Severity, { bg: string; color: string }> = {
 
 interface Tag { label: string; severity: Severity }
 
-function getTags(s: SentenceAnalysis, t: (typeof translations)['en']): Tag[] {
+function getTags(s: SentenceAnalysis, t: Translation): Tag[] {
   const tags: Tag[] = [];
   if (s.isLong)          tags.push({ label: `${t.longSentence} · ${s.wordCount}w`, severity: 'red' });
   if (s.hasPassiveVoice) tags.push({ label: t.passiveVoiceLabel, severity: 'red' });
@@ -72,7 +72,7 @@ function SentenceRow({ sentence, lang }: { sentence: SentenceAnalysis; lang: Lan
   );
 }
 
-const LEGEND: { severity: Severity; label: (t: (typeof translations)['en']) => string }[] = [
+const LEGEND: { severity: Severity; label: (t: Translation) => string }[] = [
   { severity: 'red',   label: (t) => `${t.legendLong} / ${t.legendPassive}` },
   { severity: 'amber', label: (t) => t.legendComplex },
   { severity: 'blue',  label: (t) => t.legendClean },

@@ -3,7 +3,7 @@ import TextInput from '@/components/TextInput';
 import AnnotatedText from '@/components/AnnotatedText';
 import MetricsSidebar from '@/components/MetricsSidebar';
 import SuggestionCard from '@/components/SuggestionCard';
-import { analyzeText, type AnalysisResult } from '@/lib/analyzer';
+import { analyzeText, AnalysisError, type AnalysisResult } from '@/lib/analyzer';
 import { enhanceWithClaude, type ClaudeEnhancement } from '@/lib/claudeEnhancer';
 import { generatePDF } from '@/lib/generatePDF';
 import { type Lang, translations } from '@/lib/i18n';
@@ -16,18 +16,25 @@ const Index = () => {
   const [enhancement, setEnhancement] = useState<ClaudeEnhancement | null>(null);
   const [isEnhancing, setIsEnhancing] = useState(false);
 
+  const [error, setError] = useState<string | null>(null);
+
   const t = translations[lang];
 
   const handleAnalyze = useCallback(() => {
     if (!text.trim()) return;
     setIsAnalyzing(true);
     setEnhancement(null);
+    setError(null);
     setTimeout(() => {
       try {
         const r = analyzeText(text, lang);
         setResult(r);
       } catch (err) {
-        console.error('Analysis failed:', err);
+        if (err instanceof AnalysisError) {
+          setError(err.message);
+        } else {
+          console.error('Analysis failed:', err);
+        }
       } finally {
         setIsAnalyzing(false);
       }
@@ -115,6 +122,15 @@ const Index = () => {
           isAnalyzing={isAnalyzing}
           lang={lang}
         />
+
+        {error && (
+          <div
+            role="alert"
+            style={{ fontSize: '13px', color: '#dc2626', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', padding: '10px 12px' }}
+          >
+            {error}
+          </div>
+        )}
 
         {result && (
           <>

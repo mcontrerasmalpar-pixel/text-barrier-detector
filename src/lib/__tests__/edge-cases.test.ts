@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { analyzeText } from '../analyzer';
+import { analyzeText, AnalysisError } from '../analyzer';
 import type { AnalysisLanguage } from '../analyzer';
 
 function assertFinite(value: unknown, path = 'result'): void {
@@ -17,19 +17,15 @@ const LANGS: AnalysisLanguage[] = ['en', 'es'];
 describe('edge cases', () => {
   for (const lang of LANGS) {
     describe(`lang=${lang}`, () => {
-      it('empty text yields zeroed, finite metrics', () => {
-        const r = analyzeText('', lang);
-        assertFinite(r);
-        expect(r.totalWords).toBe(0);
-        expect(r.passiveCount).toBe(0);
-        expect(r.sentences).toEqual([]);
-        expect(r.structureScore).toBe(0);
-      });
-
-      it('whitespace-only text behaves like empty text', () => {
-        const r = analyzeText('  \n\t \n\n  ', lang);
-        assertFinite(r);
-        expect(r.totalWords).toBe(0);
+      it('empty and whitespace-only text are rejected with EMPTY_TEXT', () => {
+        for (const text of ['', '  \n\t \n\n  ']) {
+          expect(() => analyzeText(text, lang)).toThrow(AnalysisError);
+          try {
+            analyzeText(text, lang);
+          } catch (e) {
+            expect((e as AnalysisError).code).toBe('EMPTY_TEXT');
+          }
+        }
       });
 
       it('punctuation-only text has no words and no NaN', () => {

@@ -46,6 +46,10 @@ export const translations = {
     readabilityBand: 'Readability Band (A1–C2)',
     readabilityBandNote: 'CEFR-inspired heuristic, not a certification.',
     levelScore: 'Score',
+    errInvalidType: 'Input text must be a string, but received {type}.',
+    errEmptyText: 'Input text is empty. Provide at least one word to analyze.',
+    errTextTooLong: 'Input text is too long: {length} characters (maximum {max}). Split it into smaller parts.',
+    errUnsupportedLanguage: 'Unsupported language "{lang}". Supported languages: {supported}.',
   },
   es: {
     title: 'DETECTOR DE BARRERAS DE TEXTO',
@@ -94,7 +98,14 @@ export const translations = {
     readabilityBand: 'Banda de legibilidad (A1–C2)',
     readabilityBandNote: 'Heurística inspirada en el MCER, no es una certificación.',
     levelScore: 'Puntuación',
+    errInvalidType: 'El texto de entrada debe ser una cadena (string), pero se recibió {type}.',
+    errEmptyText: 'El texto de entrada está vacío. Proporcione al menos una palabra para analizar.',
+    errTextTooLong: 'El texto de entrada es demasiado largo: {length} caracteres (máximo {max}). Divídalo en partes más pequeñas.',
+    errUnsupportedLanguage: 'Idioma no admitido "{lang}". Idiomas admitidos: {supported}.',
   },
 } as const;
 
 export type Lang = keyof typeof translations;
+
+/** Widened translation record (every key maps to a plain string). */
+export type Translation = Record<keyof (typeof translations)['en'], string>;
