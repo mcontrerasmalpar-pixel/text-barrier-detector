@@ -1,7 +1,7 @@
 {
     "name":  "text-barrier-detector",
     "version":  "1.0.0",
-    "description":  "Readability and plain-language barrier detector for English and Spanish text (Flesch / FernÃ¡ndez-Huerta, passive voice, complex words, structure). Zero runtime dependencies.",
+    "description":  "Readability and plain-language barrier detector for English and Spanish text (Flesch / FernÃƒÂ¡ndez-Huerta, passive voice, complex words, structure). Zero runtime dependencies.",
     "keywords":  [
                      "readability",
                      "accessibility",
@@ -60,14 +60,13 @@
                     "build:lib":  "tsc -p packages/core/tsconfig.json \u0026\u0026 vite build --config vite.lib.config.ts \u0026\u0026 tsc -p tsconfig.lib.json",
                     "typecheck":  "tsc --noEmit -p tsconfig.app.json",
                     "prepublishOnly":  "npm test \u0026\u0026 npm run build:lib",
-                    "build:core":  "tsc -p packages/core/tsconfig.json"
+                    "build:core":  "tsc -p packages/core/tsconfig.json",
+                    "build:mcp":  "tsc -p packages/core/tsconfig.json \u0026\u0026 tsc -p packages/mcp/tsconfig.json"
                 },
-    "dependencies":  {
-
-                     },
     "devDependencies":  {
                             "@eslint/js":  "^9.32.0",
                             "@hookform/resolvers":  "^3.10.0",
+                            "@modelcontextprotocol/sdk":  "^1.32.2",
                             "@playwright/test":  "^1.57.0",
                             "@radix-ui/react-accordion":  "^1.2.11",
                             "@radix-ui/react-alert-dialog":  "^1.1.14",

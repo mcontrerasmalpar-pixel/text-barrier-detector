@@ -1,0 +1,44 @@
+{
+  "name": "@maky/text-barrier-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for Text Barrier Detector: deterministic readability scores, CEFR-inspired Readability Band (A1–C2), and sentence/word barrier detection for English and Spanish.",
+  "license": "MIT",
+  "author": "Maria Contreras",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mcontrerasmalpar-pixel/text-barrier-detector.git",
+    "directory": "packages/mcp"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "text-barrier-mcp": "./dist/cli.js",
+    "@maky/text-barrier-mcp": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@maky/text-barrier-core": "^0.1.0",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^3.25.76"
+  }
+}
