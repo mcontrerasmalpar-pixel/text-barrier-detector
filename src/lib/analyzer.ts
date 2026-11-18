@@ -69,6 +69,8 @@ function getEaseLabel(score: number): string {
 
 export function analyzeText(text: string, lang: AnalysisLanguage = 'en'): AnalysisResult {
   const pack = getLanguagePack(lang);
+  // Compose combining marks so "o" + U+0301 and "ó" are analyzed identically.
+  text = text.normalize('NFC');
   const sentences = splitSentences(text);
   const allWords = getWords(text, pack);
   const totalWords = allWords.length;

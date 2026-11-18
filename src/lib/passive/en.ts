@@ -73,12 +73,40 @@ const RAISING_VERBS = new Set([
   'assumed', 'estimated', 'felt', 'seen', 'found',
 ]);
 
-/** Phrasal verbs: participle + particle, treated as non-passive without "by". */
-const PHRASAL_PARTICLES =
-  /^(?:on|off|up|down|out|in|over|away|back|around|along|through|apart)\b/i;
+/**
+ * Phrasal verbs that read as a state, not an action ("is turned on",
+ * "was logged in"). Keyed by participle; value = particles that complete the
+ * phrasal verb. Treated as non-passive unless a "by" agent is present.
+ * Kept per-verb on purpose: a generic particle list would also swallow real
+ * passives like "is stored in the cloud".
+ */
+const PHRASAL_VERBS: Record<string, RegExp> = {
+  turned: /^(?:on|off|up|down|out|over|around)\b/i,
+  switched: /^(?:on|off|over)\b/i,
+  powered: /^(?:on|off|up|down)\b/i,
+  shut: /^(?:down|off|up)\b/i,
+  logged: /^(?:in|out|on|off)\b/i,
+  signed: /^(?:in|out|up|off)\b/i,
+  checked: /^(?:in|out)\b/i,
+  opted: /^(?:in|out)\b/i,
+  plugged: /^in\b/i,
+  set: /^(?:up|off|out|aside)\b/i,
+  fed: /^up\b/i,
+  worn: /^(?:out|down)\b/i,
+  burned: /^out\b/i,
+  burnt: /^out\b/i,
+  stressed: /^out\b/i,
+  dressed: /^up\b/i,
+  booked: /^up\b/i,
+  tied: /^up\b/i,
+  locked: /^out\b/i,
+  sold: /^out\b/i,
+};
 
 const PREPOSITION =
   /^(?:to|in|on|with|by|for|about|of|at|from|into|onto|upon)\b/i;
+
+const AUX_ONLY_RE = new RegExp(`^(?:${AUXILIARIES})$`, 'i');
 
 const AUX_PARTICIPLE_RE = new RegExp(
   `\\b(?:${AUXILIARIES})\\s+${INTERVENING}([a-zA-Z']+)\\b`,
@@ -106,20 +134,21 @@ function hasAgent(sentence: string): boolean {
 export function detectEnglishPassive(sentence: string): boolean {
   AUX_PARTICIPLE_RE.lastIndex = 0;
   let match: RegExpExecArray | null;
+  let agentCache: boolean | undefined;
   while ((match = AUX_PARTICIPLE_RE.exec(sentence)) !== null) {
     const participle = match[1];
     if (!isPastParticiple(participle)) {
       // Let "is being baked" / "has been done" re-match from the next token
       // when the captured word is itself an auxiliary.
-      if (new RegExp(`^(?:${AUXILIARIES})$`, 'i').test(participle)) {
+      if (AUX_ONLY_RE.test(participle)) {
         AUX_PARTICIPLE_RE.lastIndex = match.index + match[0].length - participle.length;
       }
       continue;
     }
 
     const lower = participle.toLowerCase();
-    const after = sentence.slice(match.index + match[0].length).trimStart();
-    const agent = hasAgent(sentence);
+    const after = sentence.slice(match.index + match[0].length, match.index + match[0].length + 40).trimStart();
+    const agent = () => (agentCache ??= hasAgent(sentence));
 
     // "is said to be", "is expected to": raising constructions
     if (RAISING_VERBS.has(lower) && /^to\b/i.test(after)) continue;
@@ -130,10 +159,13 @@ export function detectEnglishPassive(sentence: string): boolean {
     }
 
     // "was tired.", "is excited"
-    if (ADJECTIVAL_ALWAYS.has(lower) && !agent) continue;
+    if (ADJECTIVAL_ALWAYS.has(lower) && !agent()) continue;
 
     // "is turned on", "was logged in", "was set up"
-    if (PHRASAL_PARTICLES.test(after) && !agent) continue;
+    const phrasal = Object.prototype.hasOwnProperty.call(PHRASAL_VERBS, lower)
+      ? PHRASAL_VERBS[lower]
+      : undefined;
+    if (phrasal && phrasal.test(after) && !agent()) continue;
 
     return true;
   }
