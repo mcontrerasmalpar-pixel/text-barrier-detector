@@ -6,7 +6,7 @@ import SuggestionCard from '@/components/SuggestionCard';
 import { analyzeText, AnalysisError, type AnalysisResult } from '@/lib/analyzer';
 import { enhanceWithClaude, type ClaudeEnhancement } from '@/lib/claudeEnhancer';
 import { generatePDF } from '@/lib/generatePDF';
-import { type Lang, translations } from '@/lib/i18n';
+import { type Lang, localizeSuggestion, translations } from '@/lib/i18n';
 
 const Index = () => {
   const [text, setText] = useState('');
@@ -15,19 +15,18 @@ const Index = () => {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [enhancement, setEnhancement] = useState<ClaudeEnhancement | null>(null);
   const [isEnhancing, setIsEnhancing] = useState(false);
-
   const [error, setError] = useState<string | null>(null);
 
   const t = translations[lang];
 
-  const handleAnalyze = useCallback(() => {
-    if (!text.trim()) return;
+  const runAnalysis = useCallback((inputText: string, targetLang: Lang) => {
+    if (!inputText.trim()) return;
     setIsAnalyzing(true);
     setEnhancement(null);
     setError(null);
     setTimeout(() => {
       try {
-        const r = analyzeText(text, lang);
+        const r = analyzeText(inputText, targetLang);
         setResult(r);
       } catch (err) {
         if (err instanceof AnalysisError) {
@@ -39,7 +38,29 @@ const Index = () => {
         setIsAnalyzing(false);
       }
     }, 50);
-  }, [text, lang]);
+  }, []);
+
+  const handleAnalyze = useCallback(() => {
+    runAnalysis(text, lang);
+  }, [runAnalysis, text, lang]);
+
+  const handleSelectSample = useCallback(
+    (sampleText: string) => {
+      setText(sampleText);
+      runAnalysis(sampleText, lang);
+    },
+    [runAnalysis, lang]
+  );
+
+  const handleLangChange = useCallback(
+    (nextLang: Lang) => {
+      setLang(nextLang);
+      if (text.trim() && result) {
+        runAnalysis(text, nextLang);
+      }
+    },
+    [text, result, runAnalysis]
+  );
 
   const handleEnhance = useCallback(async () => {
     if (!result) return;
@@ -78,7 +99,7 @@ const Index = () => {
           {/* Right: EN/ES toggle */}
           <div className="flex items-center border border-[#e8e8e5] rounded overflow-hidden text-xs font-sans">
             <button
-              onClick={() => setLang('en')}
+              onClick={() => handleLangChange('en')}
               className={`px-3 py-1.5 transition-colors ${
                 lang === 'en'
                   ? 'bg-primary text-white'
@@ -88,7 +109,7 @@ const Index = () => {
               EN
             </button>
             <button
-              onClick={() => setLang('es')}
+              onClick={() => handleLangChange('es')}
               className={`px-3 py-1.5 border-l border-[#e8e8e5] transition-colors ${
                 lang === 'es'
                   ? 'bg-primary text-white'
@@ -107,10 +128,10 @@ const Index = () => {
         {!result && (
           <div style={{ marginBottom: '32px', paddingTop: '24px' }}>
             <h2 style={{ fontSize: '24px', fontWeight: 600, color: '#111111', lineHeight: 1.3, marginBottom: '10px' }}>
-              Make your writing more accessible
+              {t.heroTitle}
             </h2>
             <p style={{ fontSize: '14px', color: '#666666', lineHeight: 1.7 }}>
-              Paste any text to detect readability issues and get AI-powered suggestions to fix them.
+              {t.heroSubtitle}
             </p>
           </div>
         )}
@@ -119,6 +140,7 @@ const Index = () => {
           value={text}
           onChange={setText}
           onAnalyze={handleAnalyze}
+          onSelectSample={handleSelectSample}
           isAnalyzing={isAnalyzing}
           lang={lang}
         />
@@ -148,7 +170,7 @@ const Index = () => {
                   {result.suggestions.map((s, i) => (
                     <li key={i} style={{ display: 'flex', gap: '10px', fontSize: '14px', color: '#444444', lineHeight: 1.6 }}>
                       <span style={{ color: '#0891b2', fontWeight: 600, flexShrink: 0 }}>›</span>
-                      {s}
+                      {localizeSuggestion(s, lang)}
                     </li>
                   ))}
                 </ul>
@@ -165,9 +187,9 @@ const Index = () => {
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <button
                 onClick={() => generatePDF(result, enhancement)}
-                style={{ fontSize: '12px', color: '#aaaaaa', border: '1px solid #e8e8e5', borderRadius: '6px', padding: '6px 14px', background: 'transparent', cursor: 'pointer' }}
+                style={{ fontSize: '12px', color: '#666666', border: '1px solid #e8e8e5', borderRadius: '6px', padding: '6px 14px', background: '#ffffff', cursor: 'pointer' }}
               >
-                ↓ Download Report
+                {t.downloadReport}
               </button>
             </div>
           </>
