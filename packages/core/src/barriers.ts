@@ -2,6 +2,7 @@ import { getLanguagePack } from './languages/index.js';
 import type { AnalysisLanguage, LanguagePack } from './languages/types.js';
 import type { AnalyzeOptions } from './analyzer.js';
 import { validateInput } from './validation.js';
+import { isIdentifierLike, stripMarkdown } from './markdown.js';
 
 export type BarrierType = 'passive' | 'long_sentence' | 'complex_word';
 
@@ -59,6 +60,7 @@ function splitSentenceSpans(text: string): SentenceSpan[] {
 }
 
 interface WordSpan {
+  raw: string;
   clean: string;
   start: number;
   end: number;
@@ -80,7 +82,7 @@ function extractWordSpans(sentence: string, sentenceStart: number, pack: Languag
     const trail = trailingCharStrip.exec(raw)?.[0].length ?? 0;
     const start = sentenceStart + m.index + lead;
     const end = Math.max(start + 1, sentenceStart + m.index + raw.length - trail);
-    results.push({ clean, start, end });
+    results.push({ raw, clean, start, end });
   }
   return results;
 }
@@ -129,26 +131,32 @@ function findPassiveSpanInSentence(
 export function findBarriers(text: string, options: AnalyzeOptions = {}): BarrierIssue[] {
   const lang: AnalysisLanguage = options.lang ?? 'en';
   validateInput(text, lang);
+  const markdown = options.markdown === true;
   const normalized = text.normalize('NFC');
   const pack = getLanguagePack(lang);
-  const sentences = splitSentenceSpans(normalized);
+  // Same length as `normalized`, so offsets stay valid for the original text.
+  const scan = markdown ? stripMarkdown(normalized) : normalized;
+  const sentences = splitSentenceSpans(scan);
   const issues: BarrierIssue[] = [];
 
   for (const s of sentences) {
     const wordSpans = extractWordSpans(s.text, s.start, pack);
 
     if (wordSpans.length > 20) {
+      let longEnd = s.end;
+      // A terminator inserted over a line break is not part of the original sentence.
+      while (markdown && longEnd > s.start && /\s/.test(normalized[longEnd - 1])) longEnd--;
       issues.push({
         type: 'long_sentence',
         start: s.start,
-        end: s.end,
+        end: longEnd,
         sentenceIndex: s.index,
         reason:
           lang === 'es'
             ? `Oración larga (${wordSpans.length} palabras; máximo recomendado: 20).`
             : `Long sentence (${wordSpans.length} words; recommended max is 20).`,
         lang,
-        text: s.text,
+        text: markdown ? normalized.slice(s.start, longEnd) : s.text,
       });
     }
 
@@ -171,6 +179,7 @@ export function findBarriers(text: string, options: AnalyzeOptions = {}): Barrie
     }
 
     for (const w of wordSpans) {
+      if (markdown && isIdentifierLike(w.raw)) continue;
       if (pack.isCommonTechnical(w.clean)) continue;
       const syllables = pack.countSyllables(w.clean);
       if (syllables >= pack.complexWordMinSyllables) {

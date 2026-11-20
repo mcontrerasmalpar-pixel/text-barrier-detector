@@ -9,6 +9,7 @@ Deterministic readability and plain-language barrier detector for **English (`en
   - **Spanish (`es`):** Fernández-Huerta reading ease (`206.84 - 1.02*P - 0.60*S`), diphthong/hiatus syllable estimator, analytic passive (*ser* + participle) and *se*-passive/impersonal detector with reflexive/accidental clitic exclusions (*"Se me olvidó"*).
 - **Density-aware structure scoring:** evaluates paragraphs, lists (`>= 2` items), and headings (`>= 15` body words per heading) relative to word count so empty formatting cannot reach `100/100`.
 - **Readability Band (A1–C2):** a **CEFR-inspired** heuristic composite (not a certified language exam or official CEFR certification) with target audience and improvement tips.
+- **Markdown-aware mode (`markdown: true`):** ignores code blocks, tables, badges, URLs, link targets, front matter and HTML so only prose is scored. Offsets still point to the original text.
 - **Exact barrier offsets (`findBarriers`):** returns `passive`, `long_sentence`, and `complex_word` issues with `start`/`end` character offsets, `sentenceIndex`, localized `reason`, and `lang`.
 
 ---
@@ -92,12 +93,17 @@ Analyzes `text` and returns readability scores, sentence-by-sentence breakdown, 
 |-----------|------|---------|-------------|
 | `text` | `string` | *(required)* | Non-empty after trimming; `text.length <= 1,000,000` (`MAX_INPUT_CHARS`). Normalized to Unicode `NFC`. |
 | `options.lang` / `lang` | `'en' \| 'es'` | `'en'` | Must be one of `SUPPORTED_LANGUAGES` (`['en', 'es']`). |
+| `options.markdown` | `boolean` | `false` | Treat the input as Markdown: code, tables, badges, URLs and link targets are ignored; headings and list layout still count for the structure score. Not available through the positional `analyzeText(text, lang)` form (use `analyze`). |
 
 ---
 
 ### `findBarriers(text: string, options?: AnalyzeOptions): BarrierIssue[]`
 
-Deterministically locates readability barriers in `text` without calling an LLM.
+Deterministically locates readability barriers in `text` without calling an LLM. With `{ markdown: true }`, non-prose Markdown is skipped and every `start`/`end` still indexes the original string, so `text.slice(start, end) === issue.text`.
+
+### Markdown helpers
+
+`stripMarkdown(text)` returns a prose-only view of the same length (non-prose characters become spaces), `removeMarkdownNoise(text)` keeps headings and list markers for structure analysis, and `isIdentifierLike(token)` flags package names, paths and `snake_case` tokens.
 
 Each `BarrierIssue` contains:
 

@@ -5,7 +5,7 @@
  * This is a thin wrapper: all analysis lives in the TypeScript core
  * (src/lib/analyzer.ts), built to dist-lib/ by `npm run build:lib`.
  *
- * Usage: node scripts/analyze.mjs [--lang=en|es] <path-to-text-file | ->
+ * Usage: node scripts/analyze.mjs [--lang=en|es] [--markdown] <path-to-text-file | ->
  *        ("-" reads the text from stdin)
  * Output: JSON analysis result on stdout (includes the Readability Band,
  *         A1-C2, which is CEFR-inspired and not a certification).
@@ -24,9 +24,12 @@ function fail(code, message, exitCode = 1, details = {}) {
 function parseArgs(argv) {
   let lang = 'en';
   let filePath = null;
+  let markdown = false;
   for (const arg of argv.slice(2)) {
     if (arg.startsWith('--lang=')) {
       lang = arg.slice('--lang='.length).toLowerCase();
+    } else if (arg === '--markdown') {
+      markdown = true;
     } else if (arg === '--lang') {
       fail('USAGE', 'Usage: --lang=en or --lang=es');
     } else if (arg === '-' || !arg.startsWith('-')) {
@@ -35,12 +38,12 @@ function parseArgs(argv) {
       fail('USAGE', `Unknown option: ${arg}`);
     }
   }
-  return { lang, filePath };
+  return { lang, filePath, markdown };
 }
 
-const { lang, filePath } = parseArgs(process.argv);
+const { lang, filePath, markdown } = parseArgs(process.argv);
 if (!filePath) {
-  fail('USAGE', 'Usage: node scripts/analyze.mjs [--lang=en|es] <path-to-text-file | ->');
+  fail('USAGE', 'Usage: node scripts/analyze.mjs [--lang=en|es] [--markdown] <path-to-text-file | ->');
 }
 
 let text;
@@ -51,7 +54,7 @@ try {
 }
 
 try {
-  console.log(JSON.stringify(analyzeText(text, lang), null, 2));
+  console.log(JSON.stringify(analyzeText(text, lang, { markdown }), null, 2));
 } catch (err) {
   if (err instanceof AnalysisError) {
     fail(err.code, err.message, 2, err.details);

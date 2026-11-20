@@ -75,6 +75,34 @@ describe('@makitaki/text-barrier-mcp tool unit tests', () => {
     });
   });
 
+  describe('markdown handling', () => {
+    const md = '# Title\n\nThe report was written by the team.\n\n```bash\nnpm install @scope/some-long-package-name\n```\n';
+
+    it('analyze_text and find_barriers accept markdown: true and keep offsets valid', () => {
+      const analysis = parseToolText(handleAnalyzeText({ text: md, markdown: true }));
+      expect(analysis.passiveCount).toBe(1);
+      expect(analysis.totalWords).toBe(7);
+
+      const found = parseToolText(handleFindBarriers({ text: md, markdown: true }));
+      for (const issue of found.issues) {
+        expect(md.slice(issue.start, issue.end)).toBe(issue.text);
+      }
+    });
+
+    it('check_file analyzes .md files as Markdown and .txt files as plain text', () => {
+      const mdPath = join(tempDir, 'doc.md');
+      const txtPath = join(tempDir, 'doc.txt');
+      writeFileSync(mdPath, md, 'utf8');
+      writeFileSync(txtPath, md, 'utf8');
+
+      const mdRes = parseToolText(handleCheckFile({ path: mdPath }));
+      const txtRes = parseToolText(handleCheckFile({ path: txtPath }));
+      expect(mdRes.markdown).toBe(true);
+      expect(txtRes.markdown).toBe(false);
+      expect(mdRes.analysis.totalWords).toBeLessThan(txtRes.analysis.totalWords);
+    });
+  });
+
   describe('find_barriers', () => {
     it('returns deterministic barrier issues for EN and ES', () => {
       const enRes = handleFindBarriers({
