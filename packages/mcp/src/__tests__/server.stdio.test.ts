@@ -1,4 +1,5 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { execSync } from 'node:child_process';
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
@@ -13,6 +14,9 @@ describe('@makitaki/text-barrier-mcp stdio integration test', () => {
   beforeAll(async () => {
     tempDir = mkdtempSync(join(tmpdir(), 'tbd-mcp-stdio-'));
     const cliPath = resolve(process.cwd(), 'packages/mcp/dist/cli.js');
+    if (!existsSync(cliPath)) {
+      execSync('npm run build:mcp', { cwd: process.cwd(), stdio: 'ignore' });
+    }
     transport = new StdioClientTransport({
       command: process.execPath,
       args: [cliPath],
