@@ -20,7 +20,7 @@
       "@/*": [
         "./src/*"
       ],
-      "@maky/text-barrier-core": [
+      "@makitaki/text-barrier-core": [
         "./packages/core/src/index.ts"
       ]
     },

@@ -1,5 +1,5 @@
-import type { AnalysisResult } from '@maky/text-barrier-core';
-import { getLevelColor, getNextLevel } from '@maky/text-barrier-core';
+import type { AnalysisResult } from '@makitaki/text-barrier-core';
+import { getLevelColor, getNextLevel } from '@makitaki/text-barrier-core';
 import {
   type Lang,
   translations,

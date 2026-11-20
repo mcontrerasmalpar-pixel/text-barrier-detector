@@ -1,1 +1,1 @@
-export { detectEnglishPassive } from '@maky/text-barrier-core';
+export { detectEnglishPassive } from '@makitaki/text-barrier-core';

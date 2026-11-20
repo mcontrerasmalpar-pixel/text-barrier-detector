@@ -7,15 +7,16 @@ import {
   handleFindBarriers,
   handleCheckFile,
 } from '../index.js';
-import { MAX_INPUT_CHARS } from '@maky/text-barrier-core';
+import { MAX_INPUT_CHARS } from '@makitaki/text-barrier-core';
 
-function parseToolText(res: ReturnType<typeof handleAnalyzeText>): any {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseToolText(res: ReturnType<typeof handleAnalyzeText>): Record<string, any> {
   const block = res.content[0];
   if (block.type !== 'text') throw new Error('Expected text content block');
   return JSON.parse(block.text);
 }
 
-describe('@maky/text-barrier-mcp tool unit tests', () => {
+describe('@makitaki/text-barrier-mcp tool unit tests', () => {
   let tempDir: string;
 
   beforeEach(() => {

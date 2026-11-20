@@ -3,5 +3,5 @@ export {
   MIN_WORDS_FOR_FULL_STRUCTURE,
   collectStructureStats,
   computeStructureScore,
-} from '@maky/text-barrier-core';
-export type { StructureStats } from '@maky/text-barrier-core';
+} from '@makitaki/text-barrier-core';
+export type { StructureStats } from '@makitaki/text-barrier-core';

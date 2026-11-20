@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import TextInput from '@/components/TextInput';
 import AnnotatedText from '@/components/AnnotatedText';
 import MetricsSidebar from '@/components/MetricsSidebar';
-import { analyze, AnalysisError, type AnalysisResult } from '@maky/text-barrier-core';
+import { analyze, AnalysisError, type AnalysisResult } from '@makitaki/text-barrier-core';
 import { generatePDF } from '@/lib/generatePDF';
 import { type Lang, localizeSuggestion, translations } from '@/lib/i18n';
 

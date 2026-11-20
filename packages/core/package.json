@@ -1,5 +1,5 @@
 {
-  "name": "@maky/text-barrier-core",
+  "name": "@makitaki/text-barrier-core",
   "version": "0.1.0",
   "description": "Deterministic readability and plain-language barrier detector for English and Spanish text (Flesch, Fernández-Huerta, passive voice, complex words, structure, Readability Band A1–C2). Zero dependencies.",
   "keywords": [

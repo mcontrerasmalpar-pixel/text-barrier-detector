@@ -3,7 +3,7 @@
 Deterministic readability and plain-language barrier detector for **English (`en`)** and **Spanish (`es`)** product docs, support copy, PR descriptions, and MCP / CLI workflows.
 
 **Live web app:** [text-barrier-detector.vercel.app](https://text-barrier-detector.vercel.app)  
-**Packages:** [`@maky/text-barrier-core`](./packages/core) · [`@maky/text-barrier-mcp`](./packages/mcp)  
+**Packages:** [`@makitaki/text-barrier-core`](./packages/core) · [`@makitaki/text-barrier-mcp`](./packages/mcp)  
 **Author:** [Maria Contreras](https://github.com/mcontrerasmalpar-pixel)  
 **License:** [MIT](./LICENSE)
 
@@ -13,16 +13,16 @@ Deterministic readability and plain-language barrier detector for **English (`en
 
 | Package | Path | Version | Description |
 |---------|------|---------|-------------|
-| [`@maky/text-barrier-core`](./packages/core) | `packages/core` | `0.1.0` | Pure TypeScript readability & barrier detector (`analyze`, `findBarriers`). Zero runtime dependencies, no DOM, no network calls. |
-| [`@maky/text-barrier-mcp`](./packages/mcp) | `packages/mcp` | `0.1.0` | Official Model Context Protocol (`stdio`) server exposing `analyze_text`, `find_barriers`, and `check_file` for Claude Desktop, Cursor, and Claude Code. |
-| Web UI | `src/` | `1.0.0` | React + Vite web application importing `@maky/text-barrier-core`. |
+| [`@makitaki/text-barrier-core`](./packages/core) | `packages/core` | `0.1.0` | Pure TypeScript readability & barrier detector (`analyze`, `findBarriers`). Zero runtime dependencies, no DOM, no network calls. |
+| [`@makitaki/text-barrier-mcp`](./packages/mcp) | `packages/mcp` | `0.1.0` | Official Model Context Protocol (`stdio`) server exposing `analyze_text`, `find_barriers`, and `check_file` for Claude Desktop, Cursor, and Claude Code. |
+| Web UI | `src/` | `1.0.0` | React + Vite web application importing `@makitaki/text-barrier-core`. |
 
 ---
 
 ## Features
 
-- **Single TypeScript source of truth (`@maky/text-barrier-core`)** shared across the React web app, the MCP server (`@maky/text-barrier-mcp`), the CLI (`scripts/analyze.mjs`), and the GitHub Action.
-- **Zero runtime dependencies** in `@maky/text-barrier-core`.
+- **Single TypeScript source of truth (`@makitaki/text-barrier-core`)** shared across the React web app, the MCP server (`@makitaki/text-barrier-mcp`), the CLI (`scripts/analyze.mjs`), and the GitHub Action.
+- **Zero runtime dependencies** in `@makitaki/text-barrier-core`.
 - **Deterministic issue locator (`findBarriers`):** returns `passive`, `long_sentence`, and `complex_word` issues with exact `start`/`end` character offsets, `sentenceIndex`, localized `reason`, and `lang`—so a host LLM or editor can rewrite unclear passages without a second LLM call.
 - **Bilingual heuristics (`en` | `es`)** behind a `LanguagePack` interface:
   - **English (`en`):** Flesch Reading Ease, Flesch–Kincaid Grade Level, syllable counter, passive-voice detector with irregular participle list and phrasal-verb / adjectival / raising-verb false-positive exclusions (*"is turned on"*, *"said to be"*).
@@ -35,10 +35,10 @@ Deterministic readability and plain-language barrier detector for **English (`en
 
 ## Installation & Usage
 
-### 1. Core Library (`@maky/text-barrier-core`)
+### 1. Core Library (`@makitaki/text-barrier-core`)
 
 ```bash
-npm install @maky/text-barrier-core
+npm install @makitaki/text-barrier-core
 ```
 
 ```ts
@@ -48,7 +48,7 @@ import {
   AnalysisError,
   SUPPORTED_LANGUAGES,
   MAX_INPUT_CHARS,
-} from '@maky/text-barrier-core';
+} from '@makitaki/text-barrier-core';
 
 const result = analyze(
   'The report was written by the team. She is turned on.',
@@ -75,12 +75,12 @@ console.log(issues);
 // ]
 ```
 
-### 2. MCP Server (`@maky/text-barrier-mcp`)
+### 2. MCP Server (`@makitaki/text-barrier-mcp`)
 
 Run directly via `npx`:
 
 ```bash
-npx -y @maky/text-barrier-mcp
+npx -y @makitaki/text-barrier-mcp
 ```
 
 #### Claude Desktop (`claude_desktop_config.json`) & Cursor (`.cursor/mcp.json`)
@@ -90,7 +90,7 @@ npx -y @maky/text-barrier-mcp
   "mcpServers": {
     "text-barrier": {
       "command": "npx",
-      "args": ["-y", "@maky/text-barrier-mcp"]
+      "args": ["-y", "@makitaki/text-barrier-mcp"]
     }
   }
 }
@@ -99,7 +99,7 @@ npx -y @maky/text-barrier-mcp
 #### Claude Code
 
 ```bash
-claude mcp add text-barrier -- npx -y @maky/text-barrier-mcp
+claude mcp add text-barrier -- npx -y @makitaki/text-barrier-mcp
 ```
 
 #### MCP Tools
@@ -108,7 +108,9 @@ claude mcp add text-barrier -- npx -y @maky/text-barrier-mcp
 |------|-----------|---------|
 | `analyze_text` | `{ text: string, lang?: "en" \| "es" }` | Full `AnalysisResult` (scores, Readability Band A1–C2, sentence metrics, suggestions). |
 | `find_barriers` | `{ text: string, lang?: "en" \| "es" }` | `{ lang, count, issues: BarrierIssue[] }` (`passive`, `long_sentence`, `complex_word` with `start`/`end` offsets). |
-| `check_file` | `{ path: string, lang?: "en" \| "es" }` | Reads a local `.md` or `.txt` file and returns `{ path, lang, analysis, issues }`. |
+| `check_file` | `{ path: string, lang?: "en" \| "es" }` | Reads a local `.md` or `.txt` file on the user's disk (up to `1,000,000` chars / `4 MB`) and returns `{ path, lang, analysis, issues }`. |
+
+> **Security note on `check_file`:** Because `@makitaki/text-barrier-mcp` runs as a local `stdio` child process with your OS user permissions, `check_file` can read any `.md` or `.txt` file on your local disk that your user account can access. Only `.md` and `.txt` extensions are allowed, and file contents are never logged or sent over the network. See [`SECURITY.md`](./SECURITY.md).
 
 Example prompt in your MCP client:
 > `"Check the clarity of README.md"`
@@ -126,7 +128,7 @@ echo "Se registró el usuario. Se me olvidó." | node scripts/analyze.mjs --lang
 
 ---
 
-## Core API Reference (`@maky/text-barrier-core`)
+## Core API Reference (`@makitaki/text-barrier-core`)
 
 ### `analyze(text: string, options?: { lang?: 'en' | 'es' }): AnalysisResult`
 ### `findBarriers(text: string, options?: { lang?: 'en' | 'es' }): BarrierIssue[]`
@@ -379,8 +381,8 @@ npm install
 npm run dev         # Start Vite dev server on http://localhost:8080
 npm test            # Run Vitest unit + MCP stdio integration suite
 npx playwright test # Run Playwright e2e test
-npm run build:core  # Build @maky/text-barrier-core (packages/core/dist/)
-npm run build:mcp   # Build @maky/text-barrier-core and @maky/text-barrier-mcp
+npm run build:core  # Build @makitaki/text-barrier-core (packages/core/dist/)
+npm run build:mcp   # Build @makitaki/text-barrier-core and @makitaki/text-barrier-mcp
 npm run build       # Build web application
 npm run typecheck   # TypeScript check
 npm run lint        # ESLint

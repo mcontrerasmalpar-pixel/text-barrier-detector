@@ -1,5 +1,5 @@
 /**
- * @maky/text-barrier-core
+ * @makitaki/text-barrier-core
  * Pure TypeScript readability & plain-language barrier detector (EN + ES).
  * Zero React, DOM, or network dependencies.
  */

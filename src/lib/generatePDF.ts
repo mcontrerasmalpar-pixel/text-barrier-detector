@@ -1,5 +1,10 @@
-import type { AnalysisResult } from './analyzer';
-import type { ClaudeEnhancement } from './claudeEnhancer';
+import type { AnalysisResult } from '@makitaki/text-barrier-core';
+
+export interface ClaudeEnhancement {
+  rewrites: { original: string; rewrite: string; reason: string }[];
+  titleSuggestion?: string;
+  jargonValidation: { word: string; isJargon: boolean; simpler?: string }[];
+}
 
 type Category = 'long' | 'passive' | 'complex' | 'clean';
 

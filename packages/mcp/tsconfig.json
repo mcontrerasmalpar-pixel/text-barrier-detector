@@ -13,7 +13,7 @@
     "strict": true,
     "skipLibCheck": true,
     "paths": {
-      "@maky/text-barrier-core": ["../core/dist/index.d.ts"]
+      "@makitaki/text-barrier-core": ["../core/dist/index.d.ts"]
     }
   },
   "include": ["src"],

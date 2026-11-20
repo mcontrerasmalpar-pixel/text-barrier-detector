@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import * as core from '@maky/text-barrier-core';
+import * as core from '@makitaki/text-barrier-core';
 
-describe('@maky/text-barrier-core package API', () => {
+describe('@makitaki/text-barrier-core package API', () => {
   it('exports the typed core API (analyze, findBarriers, validators, language packs)', () => {
     for (const name of [
       'analyze',
