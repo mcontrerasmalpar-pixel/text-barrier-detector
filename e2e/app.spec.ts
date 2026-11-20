@@ -1,6 +1,6 @@
 import { test, expect } from "../playwright-fixture";
 
-test("analyzes text in the React UI using @maky/text-barrier-core", async ({ page }) => {
+test("analyzes text in the React UI using @makitaki/text-barrier-core", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Text Barrier Detector")).toBeVisible();
   await page.locator("textarea").fill("The report was written by the team. She is turned on.");

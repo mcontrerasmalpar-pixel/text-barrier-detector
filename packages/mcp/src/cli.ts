@@ -11,7 +11,7 @@ async function main(): Promise<void> {
 main().catch((err) => {
   // Never log user text; only report startup/transport errors on stderr.
   process.stderr.write(
-    `[@maky/text-barrier-mcp] Fatal startup error: ${err instanceof Error ? err.message : String(err)}\n`
+    `[@makitaki/text-barrier-mcp] Fatal startup error: ${err instanceof Error ? err.message : String(err)}\n`
   );
   process.exit(1);
 });

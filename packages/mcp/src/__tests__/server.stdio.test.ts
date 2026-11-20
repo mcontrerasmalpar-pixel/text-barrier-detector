@@ -5,7 +5,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
-describe('@maky/text-barrier-mcp stdio integration test', () => {
+describe('@makitaki/text-barrier-mcp stdio integration test', () => {
   let client: Client;
   let transport: StdioClientTransport;
   let tempDir: string;

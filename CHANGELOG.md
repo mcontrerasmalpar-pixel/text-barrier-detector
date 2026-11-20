@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to this project and its published packages (`@maky/text-barrier-core` and `@maky/text-barrier-mcp`) will be documented in this file.
+All notable changes to this project and its published packages (`@makitaki/text-barrier-core` and `@makitaki/text-barrier-mcp`) will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- **`@maky/text-barrier-core` (`packages/core`):**
+- **`@makitaki/text-barrier-core` (`packages/core`):**
   - Pure TypeScript readability and barrier detector (`analyze`, `analyzeText`, `findBarriers`) with zero runtime dependencies, no DOM, and no network calls.
   - `LanguagePack` architecture shipping English (`en`, Flesch Reading Ease) and Spanish (`es`, Fernández-Huerta `206.84 - 1.02*P - 0.60*S`) packs.
   - Deterministic `findBarriers(text, { lang })` returning `passive`, `long_sentence`, and `complex_word` issues with exact `start`/`end` character offsets, `sentenceIndex`, localized `reason`, and `lang`.
@@ -17,7 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   - Density-aware structure scoring that evaluates paragraphs, lists, and headings relative to word count so empty formatting cannot reach `100/100`.
   - **Readability Band (A1–C2)** classifier with explicit disclaimer (`"CEFR-inspired readability heuristic, not a CEFR assessment or certification."`).
   - Input validation (`AnalysisError`) for non-string (`INVALID_TYPE`), empty (`EMPTY_TEXT`), `> 1,000,000` characters (`TEXT_TOO_LONG`), and unsupported language (`UNSUPPORTED_LANGUAGE`) with localized messages (`en`/`es`).
-- **`@maky/text-barrier-mcp` (`packages/mcp`):**
+- **`@makitaki/text-barrier-mcp` (`packages/mcp`):**
   - Official `@modelcontextprotocol/sdk` (`stdio`) server exposing `analyze_text`, `find_barriers`, and `check_file` (`.md` / `.txt`).
   - Official MCP Registry manifest (`server.json`, schema `2025-12-11`) and `mcpName` metadata (`io.github.mcontrerasmalpar-pixel/text-barrier-mcp`).
 - **CI & Quality:**
@@ -26,5 +26,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Removed
 
-- Removed dead browser-side Claude rewrite card (`SuggestionCard.tsx` and `claudeEnhancer.ts`); plain-language rewrites are handled by the host LLM consuming `@maky/text-barrier-mcp`.
+- Removed dead browser-side Claude rewrite card (`SuggestionCard.tsx` and `claudeEnhancer.ts`); plain-language rewrites are handled by the host LLM consuming `@makitaki/text-barrier-mcp`.
 - Removed duplicate `bun.lock` and `bun.lockb` lockfiles in favor of a single npm workspace lockfile (`package-lock.json`).

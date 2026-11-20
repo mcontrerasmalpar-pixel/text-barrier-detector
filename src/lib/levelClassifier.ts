@@ -4,9 +4,9 @@ export {
   classifyLevel,
   getLevelColor,
   getNextLevel,
-} from '@maky/text-barrier-core';
+} from '@makitaki/text-barrier-core';
 export type {
   LevelDimensions,
   LevelResult,
   TextLevel,
-} from '@maky/text-barrier-core';
+} from '@makitaki/text-barrier-core';

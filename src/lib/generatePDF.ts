@@ -1,4 +1,4 @@
-import type { AnalysisResult } from '@maky/text-barrier-core';
+import type { AnalysisResult } from '@makitaki/text-barrier-core';
 
 export interface ClaudeEnhancement {
   rewrites: { original: string; rewrite: string; reason: string }[];

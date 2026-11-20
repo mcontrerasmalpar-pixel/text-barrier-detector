@@ -1,4 +1,4 @@
-# `@maky/text-barrier-core`
+# `@makitaki/text-barrier-core`
 
 Deterministic readability and plain-language barrier detector for **English (`en`)** and **Spanish (`es`)** text.
 
@@ -16,7 +16,7 @@ Deterministic readability and plain-language barrier detector for **English (`en
 ## Installation
 
 ```bash
-npm install @maky/text-barrier-core
+npm install @makitaki/text-barrier-core
 ```
 
 ---
@@ -30,7 +30,7 @@ import {
   AnalysisError,
   SUPPORTED_LANGUAGES,
   MAX_INPUT_CHARS,
-} from '@maky/text-barrier-core';
+} from '@makitaki/text-barrier-core';
 
 // 1. Full readability report + Readability Band (A1–C2)
 const report = analyze(

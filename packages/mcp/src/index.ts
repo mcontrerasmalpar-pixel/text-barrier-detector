@@ -10,12 +10,12 @@ import {
   analyze,
   findBarriers,
   isSupportedLanguage,
-} from '@maky/text-barrier-core';
+} from '@makitaki/text-barrier-core';
 import type {
   AnalysisLanguage,
   AnalysisResult,
   BarrierIssue,
-} from '@maky/text-barrier-core';
+} from '@makitaki/text-barrier-core';
 
 export const ALLOWED_FILE_EXTENSIONS = ['.md', '.txt'] as const;
 /** Maximum file size in bytes (4 bytes per UTF-8 char upper bound for 1,000,000 chars). */
@@ -235,12 +235,12 @@ export function handleCheckFile(args: {
 }
 
 /**
- * Creates a configured `@maky/text-barrier-mcp` `McpServer` instance with
+ * Creates a configured `@makitaki/text-barrier-mcp` `McpServer` instance with
  * `analyze_text`, `find_barriers`, and `check_file` registered.
  */
 export function createMcpServer(): McpServer {
   const server = new McpServer({
-    name: '@maky/text-barrier-mcp',
+    name: '@makitaki/text-barrier-mcp',
     version: '0.1.0',
   });
 

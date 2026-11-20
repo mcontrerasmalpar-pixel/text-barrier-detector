@@ -4,9 +4,9 @@ export {
   esPack,
   getLanguagePack,
   isSupportedLanguage,
-} from '@maky/text-barrier-core';
+} from '@makitaki/text-barrier-core';
 export type {
   AnalysisLanguage,
   FormulaName,
   LanguagePack,
-} from '@maky/text-barrier-core';
+} from '@makitaki/text-barrier-core';

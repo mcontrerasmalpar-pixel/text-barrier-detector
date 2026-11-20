@@ -10,7 +10,7 @@ export {
   isSupportedLanguage,
   READABILITY_BAND_DISCLAIMER,
   READABILITY_BAND_NAME,
-} from '@maky/text-barrier-core';
+} from '@makitaki/text-barrier-core';
 export type {
   AnalyzeOptions,
   AnalysisErrorCode,
@@ -25,4 +25,4 @@ export type {
   LevelResult,
   SentenceAnalysis,
   TextLevel,
-} from '@maky/text-barrier-core';
+} from '@makitaki/text-barrier-core';

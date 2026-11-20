@@ -15,7 +15,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "@maky/text-barrier-core": path.resolve(__dirname, "./packages/core/src/index.ts"),
+      "@makitaki/text-barrier-core": path.resolve(__dirname, "./packages/core/src/index.ts"),
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core"],
   },

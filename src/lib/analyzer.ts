@@ -3,7 +3,7 @@ export {
   analyzeText,
   AnalysisError,
   MAX_INPUT_CHARS,
-} from '@maky/text-barrier-core';
+} from '@makitaki/text-barrier-core';
 export type {
   AnalyzeOptions,
   AnalysisErrorCode,
@@ -13,4 +13,4 @@ export type {
   FormulaName,
   LanguagePack,
   SentenceAnalysis,
-} from '@maky/text-barrier-core';
+} from '@makitaki/text-barrier-core';
