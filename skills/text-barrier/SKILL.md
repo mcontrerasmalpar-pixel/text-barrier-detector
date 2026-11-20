@@ -73,4 +73,4 @@ Tools return `{"error": {"code", "message", "details"}}` with `isError: true`. C
 
 ## Source
 
-MIT licensed. Repo: https://github.com/mcontrerasmalpar-pixel/Text-Barrier-Detector. (package `@makitaki/text-barrier-mcp`).
+MIT licensed. Repo: https://github.com/mcontrerasmalpar-pixel/Text-Barrier-Detector (package `@makitaki/text-barrier-mcp`).
