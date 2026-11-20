@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies and build the analyzer package
         run: |
           npm ci
-          npm run build:lib
+          npm run build:core
 
       - name: Analyze PR body readability
         if: github.event_name == 'pull_request'
@@ -88,7 +88,7 @@ jobs:
               comment += '\n';
             }
 
-            comment += `> Powered by [Text Barrier Detector](https://prose-decoder-bot.vercel.app)`;
+            comment += `> Powered by [Text Barrier Detector](https://text-barrier-detector.vercel.app)`;
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
@@ -151,7 +151,7 @@ jobs:
               comment += '\n';
             }
 
-            comment += `> Powered by [Text Barrier Detector](https://prose-decoder-bot.vercel.app)`;
+            comment += `> Powered by [Text Barrier Detector](https://text-barrier-detector.vercel.app)`;
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,

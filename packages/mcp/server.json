@@ -1,0 +1,22 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.mcontrerasmalpar-pixel/text-barrier-mcp",
+  "description": "Deterministic EN/ES readability metrics, Readability Band (A1-C2), and barrier detection.",
+  "repository": {
+    "url": "https://github.com/mcontrerasmalpar-pixel/text-barrier-detector",
+    "source": "github",
+    "subfolder": "packages/mcp"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "@maky/text-barrier-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

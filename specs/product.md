@@ -15,9 +15,9 @@ Product and docs teams ship unclear English and Spanish copy. Readers bounce or 
 ## Primary jobs
 
 1. Analyze English (`en`) or Spanish (`es`) text and get deterministic readability and complexity metrics in milliseconds
-2. Spot which sentences are long, passive, or lexically heavy
+2. Spot which sentences and words are long, passive, or lexically heavy (`findBarriers` with exact character offsets)
 3. Enforce input boundaries with clear, localized error codes and messages
-4. Optionally request plain-language rewrites for hard sentences in the browser UI
+4. Let AI assistants (Claude Desktop, Cursor, Claude Code) inspect text and `.md`/`.txt` files via `@maky/text-barrier-mcp` and rewrite unclear passages using the returned barrier issues
 5. Run the exact same TypeScript engine in the browser, CLI, CI Action, and npm / MCP consumers
 
 ## In scope (shipped)
@@ -71,12 +71,14 @@ Action fail threshold: overall score **< 30/100**.
 
 ## Acceptance checks for this contract
 
-- [x] Core analyzer exports cleanly via `npm run build:lib` (ESM, CJS, `.d.ts`) with zero runtime dependencies
-- [x] `scripts/analyze.mjs` reuses the built TypeScript analyzer as the single source of truth
+- [x] Core analyzer exports cleanly from `@maky/text-barrier-core` (`packages/core/dist/`) with zero runtime dependencies
+- [x] `@maky/text-barrier-mcp` (`packages/mcp/dist/`) runs over `stdio` and exposes `analyze_text`, `find_barriers`, and `check_file` (with local `.md`/`.txt` filesystem scope documented)
+- [x] `scripts/analyze.mjs` and the React UI reuse `@maky/text-barrier-core` as the single source of truth
 - [x] Passive voice regression fixtures pass for EN (*"The report was written"* vs *"She is turned on"*) and ES (*"Se registró"* vs *"Se me olvidó"*)
 - [x] Edge cases pass (punctuation-only, Unicode NFC/NFD, emojis/CJK/RTL, 100k words)
-- [x] Input validation throws `AnalysisError` with localized `i18n.ts` messages for non-string, empty, `> 1,000,000` chars, and unsupported language
+- [x] Input validation throws `AnalysisError` with localized messages for non-string, empty, `> 1,000,000` chars, and unsupported language
 - [x] UI, README, CLI, Action, and specs use **Readability Band (A1–C2)** and state it is CEFR-inspired, not a certification
+- [x] GitHub Actions CI (`.github/workflows/ci.yml`) runs `npm ci`, `npm run build:mcp`, `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build`
 
 ## Non-goals disguised as features
 

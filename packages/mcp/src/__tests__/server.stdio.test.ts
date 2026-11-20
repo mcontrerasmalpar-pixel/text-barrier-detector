@@ -63,9 +63,11 @@ describe('@maky/text-barrier-mcp stdio integration test', () => {
     const content = (res.content as Array<{ type: string; text: string }>)[0];
     const parsed = JSON.parse(content.text);
     expect(parsed.lang).toBe('es');
-    expect(parsed.issues.some((i: any) => i.type === 'passive' && i.text === 'Se registró')).toBe(
-      true
-    );
+    expect(
+      parsed.issues.some(
+        (i: { type: string; text: string }) => i.type === 'passive' && i.text === 'Se registró'
+      )
+    ).toBe(true);
   });
 
   it('calls check_file over stdio on a .md file', async () => {

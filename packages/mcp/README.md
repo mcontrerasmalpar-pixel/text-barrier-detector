@@ -273,6 +273,8 @@ Returns a deterministic list of readability barriers (`passive` | `long_sentence
 
 Reads a local `.md` or `.txt` file and returns both the full `analysis` object and the `issues` list in a single call.
 
+> **Security & Local Filesystem Note:** Because `@maky/text-barrier-mcp` runs locally over `stdio` as a child process of your MCP client, `check_file` executes with your local OS user permissions and can read **any `.md` or `.txt` file on your local disk** that your user account can access (up to `1,000,000` characters / `4 MB`). Non-`.md`/`.txt` extensions are rejected with `UNSUPPORTED_FILE_TYPE`, and file contents are never logged or sent over the network. See [`SECURITY.md`](../../SECURITY.md) for details.
+
 #### Input Schema
 
 | Parameter | Type | Default | Description |
