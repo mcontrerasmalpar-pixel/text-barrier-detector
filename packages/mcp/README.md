@@ -70,6 +70,7 @@ Computes readability scores (Flesch Reading Ease for `en`, Fernández-Huerta for
 |-----------|------|---------|-------------|
 | `text` | `string` | *(required)* | Plain text or Markdown to analyze (non-empty after trim, max `1,000,000` characters). |
 | `lang` | `'en' \| 'es'` | `'en'` | Analysis language (`"en"` uses Flesch Reading Ease; `"es"` uses Fernández-Huerta). |
+| `markdown` | `boolean` | `false` | Set `true` for Markdown input: code blocks, tables, badges, URLs and link targets are ignored so only prose is scored. |
 
 #### Output Example — English (`lang: "en"`)
 
@@ -208,6 +209,7 @@ Returns a deterministic list of readability barriers (`passive` | `long_sentence
 |-----------|------|---------|-------------|
 | `text` | `string` | *(required)* | Plain text or Markdown to scan (non-empty after trim, max `1,000,000` characters). |
 | `lang` | `'en' \| 'es'` | `'en'` | Analysis language (`"en"` or `"es"`). |
+| `markdown` | `boolean` | `false` | Set `true` for Markdown input. Offsets (`start`/`end`) still refer to the original text. |
 
 #### Output Example — English (`lang: "en"`)
 
@@ -282,11 +284,14 @@ Reads a local `.md` or `.txt` file and returns both the full `analysis` object a
 | `path` | `string` | *(required)* | Local path to a `.md` or `.txt` file (up to `1,000,000` characters / `4 MB`). |
 | `lang` | `'en' \| 'es'` | `'en'` | Analysis language (`"en"` or `"es"`). |
 
+`.md` files are analyzed as Markdown automatically (code blocks, tables, badges and URLs are ignored; the result includes `"markdown": true`). `.txt` files are analyzed as plain text.
+
 #### Output Example
 
 ```json
 {
   "path": "README.md",
+  "markdown": true,
   "lang": "en",
   "analysis": {
     "overallScore": 78,

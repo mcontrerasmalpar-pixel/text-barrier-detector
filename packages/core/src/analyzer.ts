@@ -4,6 +4,7 @@ import { computeStructureScore } from './structure.js';
 import { getLanguagePack } from './languages/index.js';
 import type { AnalysisLanguage, FormulaName, LanguagePack } from './languages/index.js';
 import { validateInput } from './validation.js';
+import { isIdentifierLike, removeMarkdownNoise, stripMarkdown } from './markdown.js';
 export { AnalysisError, MAX_INPUT_CHARS } from './validation.js';
 export type { AnalysisErrorCode, AnalysisErrorDetails } from './validation.js';
 export type { AnalysisLanguage, FormulaName, LanguagePack } from './languages/index.js';
@@ -11,6 +12,12 @@ export type { AnalysisLanguage, FormulaName, LanguagePack } from './languages/in
 export interface AnalyzeOptions {
   /** Analysis language ('en' | 'es'). Defaults to 'en'. */
   lang?: AnalysisLanguage;
+  /**
+   * Treat the input as Markdown: code, tables, badges, URLs and link targets are
+   * ignored so only prose is scored (default `false`). Offsets reported by
+   * `findBarriers` still refer to the original string.
+   */
+  markdown?: boolean;
 }
 
 export interface SentenceAnalysis {
@@ -56,8 +63,9 @@ function cleanWord(word: string, pack: LanguagePack): string {
   return word.replace(pack.wordCharsRe, '');
 }
 
-function findComplexWords(words: string[], pack: LanguagePack): string[] {
+function findComplexWords(words: string[], pack: LanguagePack, markdown = false): string[] {
   return words
+    .filter(w => !(markdown && isIdentifierLike(w)))
     .map(w => cleanWord(w, pack))
     .filter(w => {
       if (w.length === 0) return false;
@@ -79,13 +87,21 @@ function getEaseLabel(score: number): string {
  * input is not a string, is empty/whitespace-only, exceeds MAX_INPUT_CHARS, or
  * when `lang` is not supported.
  */
-export function analyzeText(text: string, lang: AnalysisLanguage = 'en'): AnalysisResult {
+export function analyzeText(
+  text: string,
+  lang: AnalysisLanguage = 'en',
+  options: Pick<AnalyzeOptions, 'markdown'> = {}
+): AnalysisResult {
   validateInput(text, lang);
   const pack = getLanguagePack(lang);
+  const markdown = options.markdown === true;
   // Compose combining marks so "o" + U+0301 and "ó" are analyzed identically.
   text = text.normalize('NFC');
-  const sentences = splitSentences(text);
-  const allWords = getWords(text, pack);
+  // In Markdown mode, prose metrics use a prose-only view; structure keeps headings and lists.
+  const prose = markdown ? stripMarkdown(text) : text;
+  const structureSource = markdown ? removeMarkdownNoise(text) : text;
+  const sentences = splitSentences(prose).map(s => (markdown ? s.replace(/\s+/g, ' ') : s));
+  const allWords = getWords(prose, pack);
   const totalWords = allWords.length;
   const totalSentences = Math.max(sentences.length, 1);
   const totalSyllables = allWords.reduce(
@@ -114,13 +130,14 @@ export function analyzeText(text: string, lang: AnalysisLanguage = 'en'): Analys
     const words = getWords(s, pack);
     const isLong = words.length > 20;
     const hasPassive = pack.isPassive(s);
-    const complex = findComplexWords(words, pack);
+    const complex = findComplexWords(words, pack, markdown);
     if (hasPassive) passiveCount++;
     complexWordCount += complex.length;
     return { text: s, wordCount: words.length, isLong, hasPassiveVoice: hasPassive, complexWords: complex, index: i };
   });
 
-  const structureScore = computeStructureScore(text, totalWords);
+  const structureWords = markdown ? getWords(structureSource, pack).length : totalWords;
+  const structureScore = computeStructureScore(structureSource, structureWords);
 
   const sentenceLengthScore = Math.max(0, 100 - (sentenceAnalyses.filter(s => s.isLong).length / totalSentences) * 100);
   const passiveScore = Math.max(0, 100 - (passiveCount / totalSentences) * 100);
@@ -162,9 +179,9 @@ export function analyzeText(text: string, lang: AnalysisLanguage = 'en'): Analys
 }
 
 /**
- * Analyze text readability with an options object (`{ lang?: 'en' | 'es' }`).
+ * Analyze text readability with an options object (`{ lang?: 'en' | 'es', markdown?: boolean }`).
  */
 export function analyze(text: string, options: AnalyzeOptions = {}): AnalysisResult {
   const lang = options.lang ?? 'en';
-  return analyzeText(text, lang);
+  return analyzeText(text, lang, { markdown: options.markdown });
 }

@@ -29,6 +29,13 @@ export const langSchema = z
     'Analysis language code: "en" (English, Flesch Reading Ease) or "es" (Spanish, Fernández-Huerta). Defaults to "en".'
   );
 
+export const markdownSchema = z
+  .boolean()
+  .optional()
+  .describe(
+    'Set true when the text is Markdown: code blocks, tables, badges, URLs and link targets are ignored so only prose is scored. Offsets still refer to the original text. Defaults to false (check_file enables it automatically for .md files).'
+  );
+
 export const analyzeTextInputShape = {
   text: z
     .string()
@@ -36,6 +43,7 @@ export const analyzeTextInputShape = {
       `Plain text or Markdown to analyze (non-empty, up to ${MAX_INPUT_CHARS.toLocaleString('en-US')} characters).`
     ),
   lang: langSchema,
+  markdown: markdownSchema,
 };
 
 export const findBarriersInputShape = {
@@ -45,6 +53,7 @@ export const findBarriersInputShape = {
       `Plain text or Markdown to scan for readability barriers (non-empty, up to ${MAX_INPUT_CHARS.toLocaleString('en-US')} characters).`
     ),
   lang: langSchema,
+  markdown: markdownSchema,
 };
 
 export const checkFileInputShape = {
@@ -67,6 +76,8 @@ export interface CheckFileOutput {
   lang: AnalysisLanguage;
   analysis: AnalysisResult;
   issues: BarrierIssue[];
+  /** True when the file was analyzed as Markdown (prose only). */
+  markdown: boolean;
 }
 
 function toJsonResult(payload: unknown): CallToolResult {
@@ -114,10 +125,11 @@ function normalizeLang(lang?: string): AnalysisLanguage {
 export function handleAnalyzeText(args: {
   text: unknown;
   lang?: string;
+  markdown?: boolean;
 }): CallToolResult {
   try {
     const lang = normalizeLang(args.lang);
-    const result = analyze(args.text as string, { lang });
+    const result = analyze(args.text as string, { lang, markdown: args.markdown === true });
     return toJsonResult(result);
   } catch (err) {
     if (err instanceof AnalysisError) {
@@ -137,10 +149,11 @@ export function handleAnalyzeText(args: {
 export function handleFindBarriers(args: {
   text: unknown;
   lang?: string;
+  markdown?: boolean;
 }): CallToolResult {
   try {
     const lang = normalizeLang(args.lang);
-    const issues = findBarriers(args.text as string, { lang });
+    const issues = findBarriers(args.text as string, { lang, markdown: args.markdown === true });
     const output: FindBarriersOutput = {
       lang,
       count: issues.length,
@@ -213,14 +226,17 @@ export function handleCheckFile(args: {
     }
 
     const content = readFileSync(resolvedPath, 'utf8');
-    const analysis = analyze(content, { lang });
-    const issues = findBarriers(content, { lang });
+    // Markdown files are analyzed as prose only (code, tables, URLs are ignored).
+    const markdown = ext === '.md';
+    const analysis = analyze(content, { lang, markdown });
+    const issues = findBarriers(content, { lang, markdown });
 
     const output: CheckFileOutput = {
       path: args.path,
       lang,
       analysis,
       issues,
+      markdown,
     };
     return toJsonResult(output);
   } catch (err) {
@@ -241,7 +257,7 @@ export function handleCheckFile(args: {
 export function createMcpServer(): McpServer {
   const server = new McpServer({
     name: '@makitaki/text-barrier-mcp',
-    version: '0.1.0',
+    version: '0.1.1',
   });
 
   const readOnlyAnnotations = {
@@ -260,7 +276,7 @@ export function createMcpServer(): McpServer {
       inputSchema: analyzeTextInputShape,
       annotations: readOnlyAnnotations,
     },
-    async ({ text, lang }) => handleAnalyzeText({ text, lang })
+    async ({ text, lang, markdown }) => handleAnalyzeText({ text, lang, markdown })
   );
 
   server.registerTool(
@@ -272,7 +288,7 @@ export function createMcpServer(): McpServer {
       inputSchema: findBarriersInputShape,
       annotations: readOnlyAnnotations,
     },
-    async ({ text, lang }) => handleFindBarriers({ text, lang })
+    async ({ text, lang, markdown }) => handleFindBarriers({ text, lang, markdown })
   );
 
   server.registerTool(
@@ -280,7 +296,7 @@ export function createMcpServer(): McpServer {
     {
       title: 'Check Markdown or Text File Readability',
       description:
-        'Reads a local .md or .txt file and returns both the full readability analysis and the list of detected barrier issues.',
+        'Reads a local .md or .txt file and returns both the full readability analysis and the list of detected barrier issues. Markdown files are analyzed as prose only (code blocks, tables, badges and URLs are ignored).',
       inputSchema: checkFileInputShape,
       annotations: readOnlyAnnotations,
     },

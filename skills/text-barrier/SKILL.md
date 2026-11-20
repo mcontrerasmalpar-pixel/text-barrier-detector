@@ -31,10 +31,10 @@ Do **not** use it for code, logs, or languages other than English and Spanish.
 | Tool | Use it for | Input |
 |---|---|---|
 | `check_file` | A local `.md` or `.txt` file. Returns full analysis plus barrier issues in one call. | `path`, `lang?` |
-| `analyze_text` | Scores for pasted text: Flesch (en) or Fernández-Huerta (es), grade level, structure score, overall score, Readability Band A1–C2, tips. | `text`, `lang?` |
-| `find_barriers` | Exact issues with character offsets: `passive`, `long_sentence` (over 20 words), `complex_word`. | `text`, `lang?` |
+| `analyze_text` | Scores for pasted text (pass `markdown: true` if it is Markdown): Flesch (en) or Fernández-Huerta (es), grade level, structure score, overall score, Readability Band A1–C2, tips. | `text`, `lang?` |
+| `find_barriers` | Exact issues with character offsets (also accepts `markdown: true`): `passive`, `long_sentence` (over 20 words), `complex_word`. | `text`, `lang?` |
 
-`lang` is `"en"` (default) or `"es"`. **Always set it explicitly** to match the text. Do not rely on the default for Spanish.
+`lang` is `"en"` (default) or `"es"`. **Always set it explicitly** to match the text. Do not rely on the default for Spanish. Set `markdown: true` when the text contains Markdown (`check_file` does this automatically for `.md`).
 
 ## Workflow
 
@@ -59,13 +59,12 @@ Do **not** use it for code, logs, or languages other than English and Spanish.
 
 User: "Check the clarity of README.md."
 
-1. Call `check_file` with `path: "README.md"`, `lang: "en"`.
-2. Real baseline returned by `@makitaki/text-barrier-mcp@0.1.0` on this repository's `README.md`:
-   - **Readability Band:** `C1` (`Complex`, band score `31/100`), **Overall Score:** `45/100`, **Structure Score:** `85/100`.
-   - **Barriers:** `9` passive, `25` long sentences, `201` complex words (`1,455` words across `48` sentences).
-   - *(Note: Markdown code blocks, JSON examples, and URLs inflate `complex_word` and `long_sentence` counts—focus rewrites on prose paragraphs and leave code/URLs untouched.)*
-3. Rewrite the flagged prose spans (for example, splitting sentence `0` of `README.md`, which has 25 words and flags `Deterministic` / `readability`, into two shorter active sentences while keeping package names and commands intact).
-4. Re-run `analyze_text` on the revised prose and report the before/after Readability Band and overall score.
+1. Call `check_file` with `path: "README.md"`, `lang: "en"`. For `.md` files the server ignores code blocks, tables, badges and URLs and scores only the prose (the result includes `"markdown": true`).
+2. Real baseline returned by `@makitaki/text-barrier-mcp@0.1.1` on this repository's `README.md`:
+   - **Readability Band:** `B1` (`Standard`, band score `62/100`), **Overall Score:** `64/100`, **Structure Score:** `85/100`.
+   - **Barriers:** `2` passive, `7` long sentences, `28` complex words (`337` prose words across `24` sentences).
+3. Rewrite the flagged prose spans (for example, split the long bullet sentences into shorter active ones), keeping package names and commands intact.
+4. Re-run `analyze_text` with `markdown: true` on the revised prose and report the before/after Readability Band and overall score.
 
 ## Errors
 

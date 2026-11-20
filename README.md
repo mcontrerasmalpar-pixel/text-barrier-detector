@@ -13,8 +13,8 @@ Deterministic readability and plain-language barrier detector for **English (`en
 
 | Package | Path | Version | Description |
 |---------|------|---------|-------------|
-| [`@makitaki/text-barrier-core`](./packages/core) | `packages/core` | `0.1.0` | Pure TypeScript readability & barrier detector (`analyze`, `findBarriers`). Zero runtime dependencies, no DOM, no network calls. |
-| [`@makitaki/text-barrier-mcp`](./packages/mcp) | `packages/mcp` | `0.1.0` | Official Model Context Protocol (`stdio`) server exposing `analyze_text`, `find_barriers`, and `check_file` for Claude Desktop, Cursor, and Claude Code. |
+| [`@makitaki/text-barrier-core`](./packages/core) | `packages/core` | `0.1.1` | Pure TypeScript readability & barrier detector (`analyze`, `findBarriers`). Zero runtime dependencies, no DOM, no network calls. |
+| [`@makitaki/text-barrier-mcp`](./packages/mcp) | `packages/mcp` | `0.1.1` | Official Model Context Protocol (`stdio`) server exposing `analyze_text`, `find_barriers`, and `check_file` for Claude Desktop, Cursor, and Claude Code. |
 | Web UI | `src/` | `1.0.0` | React + Vite web application importing `@makitaki/text-barrier-core`. |
 
 ---
@@ -106,9 +106,9 @@ claude mcp add text-barrier -- npx -y @makitaki/text-barrier-mcp
 
 | Tool | Arguments | Returns |
 |------|-----------|---------|
-| `analyze_text` | `{ text: string, lang?: "en" \| "es" }` | Full `AnalysisResult` (scores, Readability Band A1–C2, sentence metrics, suggestions). |
-| `find_barriers` | `{ text: string, lang?: "en" \| "es" }` | `{ lang, count, issues: BarrierIssue[] }` (`passive`, `long_sentence`, `complex_word` with `start`/`end` offsets). |
-| `check_file` | `{ path: string, lang?: "en" \| "es" }` | Reads a local `.md` or `.txt` file on the user's disk (up to `1,000,000` chars / `4 MB`) and returns `{ path, lang, analysis, issues }`. |
+| `analyze_text` | `{ text: string, lang?: "en" \| "es", markdown?: boolean }` | Full `AnalysisResult` (scores, Readability Band A1–C2, sentence metrics, suggestions). |
+| `find_barriers` | `{ text: string, lang?: "en" \| "es", markdown?: boolean }` | `{ lang, count, issues: BarrierIssue[] }` (`passive`, `long_sentence`, `complex_word` with `start`/`end` offsets). |
+| `check_file` | `{ path: string, lang?: "en" \| "es" }` | Reads a local `.md` or `.txt` file on the user's disk (up to `1,000,000` chars / `4 MB`) and returns `{ path, lang, analysis, issues, markdown }`. `.md` files are analyzed as prose only (code, tables, badges and URLs are ignored). |
 
 > **Security note on `check_file`:** Because `@makitaki/text-barrier-mcp` runs as a local `stdio` child process with your OS user permissions, `check_file` can read any `.md` or `.txt` file on your local disk that your user account can access. Only `.md` and `.txt` extensions are allowed, and file contents are never logged or sent over the network. See [`SECURITY.md`](./SECURITY.md).
 
@@ -123,6 +123,7 @@ Full MCP server documentation and JSON examples: [`packages/mcp/README.md`](./pa
 npm run build:core
 node scripts/analyze.mjs path/to/file.txt
 node scripts/analyze.mjs --lang=es path/to/archivo.txt
+node scripts/analyze.mjs --markdown README.md   # ignore code, tables, badges and URLs
 echo "Se registró el usuario. Se me olvidó." | node scripts/analyze.mjs --lang=es -
 ```
 

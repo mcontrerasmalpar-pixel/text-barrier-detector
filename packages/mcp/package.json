@@ -1,6 +1,6 @@
 {
   "name": "@makitaki/text-barrier-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "mcpName": "io.github.mcontrerasmalpar-pixel/text-barrier-mcp",
   "description": "MCP server for Text Barrier Detector: deterministic readability scores, CEFR-inspired Readability Band (A1–C2), and sentence/word barrier detection for English and Spanish.",
   "keywords": [
@@ -57,7 +57,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@makitaki/text-barrier-core": "^0.1.0",
+    "@makitaki/text-barrier-core": "^0.1.1",
     "@modelcontextprotocol/sdk": "^1.32.2",
     "zod": "^3.25.76"
   }

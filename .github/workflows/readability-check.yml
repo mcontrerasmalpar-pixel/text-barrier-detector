@@ -44,7 +44,7 @@ jobs:
             if (!body.trim()) { console.log('No PR body to analyze.'); return; }
 
             fs.writeFileSync('/tmp/input.txt', body);
-            const result = execSync('node scripts/analyze.mjs /tmp/input.txt', { encoding: 'utf8' });
+            const result = execSync('node scripts/analyze.mjs --markdown /tmp/input.txt', { encoding: 'utf8' });
             const a = JSON.parse(result);
             const lv = a.level;
 
@@ -113,7 +113,7 @@ jobs:
             if (!body.trim()) { console.log('No issue body to analyze.'); return; }
 
             fs.writeFileSync('/tmp/input.txt', body);
-            const result = execSync('node scripts/analyze.mjs /tmp/input.txt', { encoding: 'utf8' });
+            const result = execSync('node scripts/analyze.mjs --markdown /tmp/input.txt', { encoding: 'utf8' });
             const a = JSON.parse(result);
             const lv = a.level;
 

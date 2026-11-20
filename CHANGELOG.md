@@ -4,6 +4,24 @@ All notable changes to this project and its published packages (`@makitaki/text-
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-11-20
+
+### Added
+
+- **Markdown-aware analysis** (`markdown: true`) in `@makitaki/text-barrier-core` (`analyze`, `findBarriers`) and in the MCP tools `analyze_text` and `find_barriers`. Code blocks, inline code, tables, badges, images, URLs, link targets, front matter and HTML are ignored so only prose is scored. Headings and list layout still count for the structure score, and `start`/`end` offsets still index the original text.
+- `stripMarkdown`, `removeMarkdownNoise` and `isIdentifierLike` helpers exported from the core package.
+- `--markdown` flag for `scripts/analyze.mjs`; the readability GitHub Action now analyzes PR and issue bodies as Markdown.
+
+### Changed
+
+- `check_file` analyzes `.md` files as Markdown automatically and returns `markdown: true | false` in its result. `.txt` files are unchanged.
+- In Markdown mode, identifier-like tokens (package names, paths, `snake_case`) are never reported as complex words.
+- On this repository's `README.md` the Markdown mode changes the score from Band C1, overall 45/100, Flesch 0 and 201 complex words to Band B1, overall 64/100, Flesch 30.7 and 28 complex words. Structure score is unchanged (85).
+
+### Notes
+
+- `markdown` defaults to `false` in the core and in `analyze_text` / `find_barriers`, so existing integrations behave exactly as in 0.1.0.
+
 ## [0.1.0] - 2026-11-20
 
 ### Added

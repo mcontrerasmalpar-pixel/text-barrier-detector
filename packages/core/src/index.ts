@@ -8,6 +8,7 @@ export { analyze, analyzeText } from './analyzer.js';
 export type { AnalyzeOptions, AnalysisResult, SentenceAnalysis } from './analyzer.js';
 
 export { findBarriers } from './barriers.js';
+export { isIdentifierLike, removeMarkdownNoise, stripMarkdown } from './markdown.js';
 export type { BarrierIssue, BarrierType } from './barriers.js';
 
 export { AnalysisError, MAX_INPUT_CHARS, validateInput } from './validation.js';
